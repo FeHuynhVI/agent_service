@@ -19,6 +19,25 @@ chat = SelectorGroupChat([...])
 chat.start_chat("Hello")
 ```
 
+## LLM Configuration
+
+The `LLMConfig` helper centralises model settings for all agents. A custom
+`base_url` can be supplied via the ``LLM_BASE_URL`` environment variable or by
+setting :code:`LLMConfig.base_url` directly. Individual agents may use different
+models by populating :code:`LLMConfig.agent_models`:
+
+```python
+from config.llm_config import LLMConfig
+
+LLMConfig.base_url = "http://localhost:8000/v1"
+LLMConfig.agent_models = {
+    "Math_Expert": "gpt-math-8b",
+    "Info_Agent": "gpt-info-7b",
+}
+```
+
+Agents without an explicit entry fall back to ``LLMConfig.default_model``.
+
 ## Running
 
 Start the FastAPI application to access the mock subject and chat endpoints:
