@@ -3,6 +3,10 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 import os
+from typing import Literal, cast
+
+
+HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
 
 
 @dataclass
@@ -19,7 +23,11 @@ class Settings:
     max_consecutive_auto_reply: int = field(
         default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_AUTO_REPLY", "3"))
     )
-    human_input_mode: str = field(default_factory=lambda: os.getenv("HUMAN_INPUT_MODE", "NEVER"))
+    human_input_mode: HumanInputMode = field(
+        default_factory=lambda: cast(
+            HumanInputMode, os.getenv("HUMAN_INPUT_MODE", "NEVER")
+        )
+    )
     data_path: Path = field(default_factory=lambda: Path(os.getenv("DATA_PATH", "data")))
     mongo_uri: str = field(
         default_factory=lambda: os.getenv("MONGO_URI", "mongodb://localhost:27017")
