@@ -2,6 +2,7 @@
 Chemistry Expert Agent
 """
 from ..base_agent import SubjectExpertAgent
+from config.expert_prompts import EXPERT_PROMPTS
 
 class ChemistryExpertAgent(SubjectExpertAgent):
     """Chemistry Expert Agent"""
@@ -21,30 +22,7 @@ class ChemistryExpertAgent(SubjectExpertAgent):
                 "Nuclear Chemistry",
                 "Polymer Chemistry"
             ],
-            additional_instructions="""
-Special capabilities for Chemistry:
-- Balance chemical equations and redox reactions
-- Predict reaction products and mechanisms
-- Calculate stoichiometry and yields
-- Explain molecular structure and bonding
-- Analyze spectroscopic data (NMR, IR, MS)
-- Design synthetic pathways
-- Explain laboratory techniques and safety
-- Relate chemistry to biological and environmental systems
-
-Problem-solving approach:
-1. Identify the type of chemical problem
-2. Write balanced equations when applicable
-3. Draw molecular structures clearly
-4. Apply relevant chemical principles
-5. Show calculations with proper significant figures
-6. Include units and chemical formulas
-7. Consider reaction conditions
-8. Discuss practical implications
-
-Use IUPAC nomenclature and standard chemical notation.
-Emphasize safety considerations when discussing experiments.
-""",
+            additional_instructions=EXPERT_PROMPTS["Chemistry_Expert"],
             **kwargs
         )
     
