@@ -5,6 +5,7 @@ from config.settings import settings
 from config.llm_config import LLMConfig
 from typing import Dict, Any, Optional, List
 from autogen import AssistantAgent, UserProxyAgent
+from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
 
 class BaseAgent:
     """Base class for all agents in the system"""
@@ -81,27 +82,8 @@ class SubjectExpertAgent(BaseAgent):
     ) -> str:
         """Create a comprehensive system message for the expert"""
         expertise_list = ", ".join(expertise_areas)
-        return f"""
-You are an expert in {subject} with deep knowledge in: {expertise_list}.
-
-Your responsibilities:
-1. Provide accurate, detailed explanations in your subject area
-2. Help students understand complex concepts through clear examples
-3. Solve problems step-by-step with detailed reasoning
-4. Create practice exercises and quizzes when requested
-5. Adapt your teaching style to the student's level
-6. Use visual representations and analogies when helpful
-7. Provide references and additional resources when appropriate
-
-Teaching approach:
-- Start with fundamentals and build up complexity gradually
-- Use real-world examples to illustrate abstract concepts
-- Encourage critical thinking and problem-solving skills
-- Be patient and supportive with struggling students
-- Celebrate progress and understanding
-
-{additional}
-
-Always maintain academic integrity and encourage genuine learning.
-When you've completed explaining a concept or solving a problem, end with "TERMINATE" if the query is fully addressed.
-"""
+        return SUBJECT_EXPERT_PROMPT_TEMPLATE.format(
+            subject=subject,
+            expertise_list=expertise_list,
+            additional=additional,
+        )
