@@ -6,7 +6,7 @@ from typing import Any, Dict
 class LLMConfig:
     """Utility helpers to construct LLM configuration dictionaries."""
 
-    default_model: str = "gpt-4o-mini"
+    default_model: str = "gpt-oss-120b"
 
     @classmethod
     def get_config(cls, **overrides: Any) -> Dict[str, Any]:
