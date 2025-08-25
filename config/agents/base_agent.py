@@ -1,11 +1,12 @@
 """
 Base Agent class for all AutoGen agents
 """
+from autogen import AssistantAgent
 from config.settings import settings
 from config.llm_config import LLMConfig
-from typing import Any, Dict, List, Optional, Literal, cast
-from autogen import AssistantAgent, OpenAIChatCompletionClient
 from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
+from typing import Any, Dict, List, Optional, Literal, cast
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 
 HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
 

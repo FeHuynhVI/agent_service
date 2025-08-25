@@ -11,7 +11,8 @@ from typing import (
     Sequence,
     cast,
 )
-from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent, OpenAIChatCompletionClient
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
