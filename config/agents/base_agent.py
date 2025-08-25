@@ -25,6 +25,7 @@ class BaseAgent:
         self.name = name
         self.system_message = system_message
         # Use agent specific configuration if provided, otherwise fall back to defaults
+        print(f"LLM Config for {name}: {llm_config} {LLMConfig.get_agent_config(name)}")
         self.llm_config = llm_config or LLMConfig.get_agent_config(name)
         self.max_consecutive_auto_reply = (
             max_consecutive_auto_reply or settings.max_consecutive_auto_reply

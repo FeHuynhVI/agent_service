@@ -12,7 +12,7 @@ class LLMConfig:
 
     #: Default model to use when an agent specific model is not provided
     default_model: str = os.getenv(
-        "LLM_BASE_MODEL", ""
+        "LLM_BASE_MODEL", "unknown"
     )
     #: Optional base URL for the LLM API
     base_url: str = os.getenv("LLM_BASE_URL", "")
