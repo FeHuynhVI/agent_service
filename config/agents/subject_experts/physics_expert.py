@@ -16,6 +16,8 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 
 from __future__ import annotations
 
+from typing import cast
+
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
 from .prompts import (
@@ -48,9 +50,19 @@ class PhysicsExpertAgent(SubjectExpertAgent):
     def solve_problem(self, problem: str) -> str:
         """Solve a physics problem with full reasoning"""
         prompt = PHYSICS_SOLVE_PROBLEM_PROMPT.format(problem=problem)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
 
     def explain_concept(self, concept: str) -> str:
         """Explain a physics concept in detail"""
         prompt = PHYSICS_EXPLAIN_CONCEPT_PROMPT.format(concept=concept)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )

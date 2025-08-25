@@ -15,6 +15,8 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 
 from __future__ import annotations
 
+from typing import cast
+
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
 from .prompts import (
@@ -46,9 +48,19 @@ class EnglishExpertAgent(SubjectExpertAgent):
     def correct_grammar(self, sentence: str) -> str:
         """Correct the grammar of a sentence and explain the corrections"""
         prompt = ENGLISH_CORRECT_GRAMMAR_PROMPT.format(sentence=sentence)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
 
     def build_vocabulary(self, word: str) -> str:
         """Explain a word's meaning, usage and related terms"""
         prompt = ENGLISH_BUILD_VOCABULARY_PROMPT.format(word=word)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )

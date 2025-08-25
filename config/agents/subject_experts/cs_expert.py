@@ -1,4 +1,6 @@
-"""Computer Science Expert Agent"""
+"""Computer Science Expert Agent."""
+
+from typing import cast
 
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
@@ -8,9 +10,10 @@ from .prompts import (
     CS_EXPLAIN_ALGORITHM_PROMPT,
 )
 
+
 class CSExpertAgent(SubjectExpertAgent):
-    """Computer Science Expert Agent"""
-    
+    """Computer Science Expert Agent."""
+
     def __init__(self, **kwargs):
         super().__init__(
             name="CS_Expert",
@@ -24,25 +27,41 @@ class CSExpertAgent(SubjectExpertAgent):
                 "Operating Systems (Processes, Memory, File Systems)",
                 "Computer Networks (TCP/IP, HTTP, Security)",
                 "Artificial Intelligence and Machine Learning",
-                "Web Development (Frontend, Backend, APIs)"
+                "Web Development (Frontend, Backend, APIs)",
             ],
             additional_instructions=EXPERT_PROMPTS["CS_Expert"],
-            **kwargs
+            **kwargs,
         )
-    
+
     def write_code(self, problem: str, language: str = "Python") -> str:
-        """Write code to solve a problem"""
+        """Write code to solve a problem."""
         prompt = CS_WRITE_CODE_PROMPT.format(language=language, problem=problem)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
-    
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
+
     def debug_code(self, code: str, error: str = "") -> str:
-        """Debug code and fix errors"""
+        """Debug code and fix errors."""
         prompt = CS_DEBUG_CODE_PROMPT.format(
             code=code, error=error if error else "Unknown error"
         )
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
-    
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
+
     def explain_algorithm(self, algorithm: str) -> str:
-        """Explain an algorithm in detail"""
+        """Explain an algorithm in detail."""
         prompt = CS_EXPLAIN_ALGORITHM_PROMPT.format(algorithm=algorithm)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
+
