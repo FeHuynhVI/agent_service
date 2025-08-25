@@ -10,8 +10,6 @@ from __future__ import annotations
 
 from llm_config import LLMConfig  # noqa: F401
 
-LLMConfig.base_url = "https://mkp-api.fptcloud.com"
-
 LLMConfig.agent_models = {
     "Math_Expert": "gpt-oss-120b",
     "Info_Agent": "gpt-oss-120b",

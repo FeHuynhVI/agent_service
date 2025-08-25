@@ -10,7 +10,9 @@ class LLMConfig:
     """Utility helpers to construct LLM configuration dictionaries."""
 
     #: Default model to use when an agent specific model is not provided
-    default_model: str = "gpt-oss-120b"
+    default_model: str = os.getenv(
+        "LLM_BASE_MODEL", ""
+    )
     #: Optional base URL for the LLM API
     base_url: str = os.getenv("LLM_BASE_URL", "")
     #: API key used to authenticate with the LLM provider
