@@ -1,9 +1,9 @@
 """Application configuration settings."""
 
-from dataclasses import dataclass, field
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import Literal, cast
+from dataclasses import dataclass, field
 
 
 HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
@@ -17,8 +17,8 @@ class Settings:
     a development environment without additional configuration."""
 
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
-    azure_openai_api_key: str = field(default_factory=lambda: os.getenv("AZURE_OPENAI_API_KEY", ""))
     max_rounds: int = field(default_factory=lambda: int(os.getenv("MAX_ROUNDS", "10")))
+    azure_openai_api_key: str = field(default_factory=lambda: os.getenv("AZURE_OPENAI_API_KEY", ""))
     termination_msg: str = field(default_factory=lambda: os.getenv("TERMINATION_MSG", "TERMINATE"))
     max_consecutive_auto_reply: int = field(
         default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_AUTO_REPLY", "3"))
