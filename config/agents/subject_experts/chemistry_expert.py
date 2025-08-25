@@ -1,6 +1,7 @@
-"""
-Chemistry Expert Agent
-"""
+"""Chemistry Expert Agent."""
+
+from typing import cast
+
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
 from .prompts import (
@@ -33,7 +34,12 @@ class ChemistryExpertAgent(SubjectExpertAgent):
     def balance_equation(self, equation: str) -> str:
         """Balance a chemical equation"""
         prompt = CHEM_BALANCE_EQUATION_PROMPT.format(equation=equation)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
     
     def predict_reaction(self, reactants: str, conditions: str = "") -> str:
         """Predict reaction products and mechanism"""
@@ -41,4 +47,9 @@ class ChemistryExpertAgent(SubjectExpertAgent):
             reactants=reactants,
             conditions=conditions if conditions else "Standard conditions",
         )
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )

@@ -1,7 +1,14 @@
-"""
-Selector Group Chat implementation for AutoGen
-"""
-from typing import List, Dict, Any, Optional, Callable, Union
+"""Selector Group Chat implementation for AutoGen."""
+
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Union,
+    Literal,
+)
 from autogen import GroupChat, GroupChatManager, Agent
 from config.settings import settings
 from config.llm_config import LLMConfig
@@ -53,8 +60,13 @@ class SelectorGroupChat:
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
-    def _get_selection_method(self) -> Union[str, Callable]:
-        """Get the speaker selection method"""
+    def _get_selection_method(
+        self,
+    ) -> Union[
+        Callable[[Agent, GroupChat], Agent],
+        Literal["auto", "manual", "random", "round_robin"],
+    ]:
+        """Get the speaker selection method."""
         if self.selection_method == "manual":
             return "manual"
         if self.selection_method == "custom" and hasattr(self, "custom_selector"):

@@ -15,6 +15,8 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 
 from __future__ import annotations
 
+from typing import cast
+
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
 from .prompts import (
@@ -49,9 +51,19 @@ class LiteratureExpertAgent(SubjectExpertAgent):
         prompt = LIT_ANALYZE_TEXT_PROMPT.format(
             text=text, question_part=question_part
         )
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
 
     def give_writing_advice(self, assignment: str) -> str:
         """Provide advice for a writing assignment"""
         prompt = LIT_GIVE_WRITING_ADVICE_PROMPT.format(assignment=assignment)
-        return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
+        return cast(
+            str,
+            self.agent.generate_reply(
+                messages=[{"content": prompt, "role": "user"}]
+            ),
+        )
