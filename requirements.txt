@@ -1,5 +1,5 @@
 pymongo
-mgclient
+motor
 fastapi
 pandas
 autogen

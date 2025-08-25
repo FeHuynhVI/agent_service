@@ -17,6 +17,10 @@ from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
+from .prompts import (
+    ENGLISH_CORRECT_GRAMMAR_PROMPT,
+    ENGLISH_BUILD_VOCABULARY_PROMPT,
+)
 
 
 class EnglishExpertAgent(SubjectExpertAgent):
@@ -41,29 +45,10 @@ class EnglishExpertAgent(SubjectExpertAgent):
 
     def correct_grammar(self, sentence: str) -> str:
         """Correct the grammar of a sentence and explain the corrections"""
-        prompt = f"""
-Correct the following sentence for grammatical errors and explain each correction:
-
-"{sentence}"
-
-Provide:
-1. The corrected sentence
-2. A breakdown of each error and the corresponding rule
-3. Suggestions for how to avoid similar mistakes in the future
-"""
+        prompt = ENGLISH_CORRECT_GRAMMAR_PROMPT.format(sentence=sentence)
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
 
     def build_vocabulary(self, word: str) -> str:
         """Explain a word's meaning, usage and related terms"""
-        prompt = f"""
-Teach the word "{word}" in detail.
-
-Include:
-1. Definition and part of speech
-2. Pronunciation with phonetic transcription
-3. Synonyms and antonyms
-4. Example sentences demonstrating correct usage
-5. Common collocations or phrases with the word
-6. Etymology or origin (if interesting)
-"""
+        prompt = ENGLISH_BUILD_VOCABULARY_PROMPT.format(word=word)
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])

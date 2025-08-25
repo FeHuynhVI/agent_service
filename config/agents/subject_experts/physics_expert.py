@@ -18,6 +18,10 @@ from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
+from .prompts import (
+    PHYSICS_SOLVE_PROBLEM_PROMPT,
+    PHYSICS_EXPLAIN_CONCEPT_PROMPT,
+)
 
 
 class PhysicsExpertAgent(SubjectExpertAgent):
@@ -43,34 +47,10 @@ class PhysicsExpertAgent(SubjectExpertAgent):
 
     def solve_problem(self, problem: str) -> str:
         """Solve a physics problem with full reasoning"""
-        prompt = f"""
-Solve the following physics problem:
-{problem}
-
-Instructions:
-1. Restate the problem concisely
-2. Identify the physical quantities and laws involved
-3. Draw or describe diagrams if helpful
-4. Write down relevant equations
-5. Solve algebraically, showing each step
-6. Plug in numerical values with appropriate units
-7. Provide the final numerical answer with units
-8. Comment on the physical interpretation of the result
-"""
+        prompt = PHYSICS_SOLVE_PROBLEM_PROMPT.format(problem=problem)
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
 
     def explain_concept(self, concept: str) -> str:
         """Explain a physics concept in detail"""
-        prompt = f"""
-Explain the following physics concept:
-{concept}
-
-Include in your explanation:
-1. A definition and the fundamental principles underlying the concept
-2. Key equations and how they are derived
-3. Example problems or scenarios that illustrate the concept
-4. Visual or descriptive representation (what diagrams would show)
-5. Applications in everyday life or technology
-6. Common misconceptions or pitfalls
-"""
+        prompt = PHYSICS_EXPLAIN_CONCEPT_PROMPT.format(concept=concept)
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])

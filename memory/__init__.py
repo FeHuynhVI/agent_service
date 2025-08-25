@@ -1,4 +1,4 @@
-"""Memory package integrating MongoDB and Memgraph."""
+"""Memory package using MongoDB for persistence."""
 
 from .graph_memory import GraphMemory
 
