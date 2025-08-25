@@ -17,6 +17,10 @@ from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
 from config.expert_prompts import EXPERT_PROMPTS
+from .prompts import (
+    LIT_ANALYZE_TEXT_PROMPT,
+    LIT_GIVE_WRITING_ADVICE_PROMPT,
+)
 
 
 class LiteratureExpertAgent(SubjectExpertAgent):
@@ -41,33 +45,13 @@ class LiteratureExpertAgent(SubjectExpertAgent):
 
     def analyze_text(self, text: str, question: str = "") -> str:
         """Analyze a literary text based on a question or general guidance"""
-        # Compose optional question prefix separately to avoid backslashes in f‑string expression
         question_part = f"Question: {question}\n" if question else ""
-        prompt = (
-            "Analyze the following text:\n\n"
-            f"{text}\n\n"
-            f"{question_part}Provide:\n"
-            "1. A brief summary of the text\n"
-            "2. Identification of themes, symbols and stylistic devices\n"
-            "3. Analysis of character development and narrative perspective\n"
-            "4. Discussion of the historical and cultural context\n"
-            "5. Connections to other works or genres\n"
-            "6. Your interpretation and critical viewpoint"
+        prompt = LIT_ANALYZE_TEXT_PROMPT.format(
+            text=text, question_part=question_part
         )
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])
 
     def give_writing_advice(self, assignment: str) -> str:
         """Provide advice for a writing assignment"""
-        prompt = f"""
-Provide guidance for the following writing assignment:
-{assignment}
-
-Your advice should include:
-1. Interpretation of the assignment requirements
-2. Suggestions for outlining and structuring the response
-3. Tips on developing a clear thesis and supporting arguments
-4. Advice on style, tone and voice appropriate to the genre
-5. Common pitfalls to avoid
-6. Recommendations for revision and editing
-"""
+        prompt = LIT_GIVE_WRITING_ADVICE_PROMPT.format(assignment=assignment)
         return self.agent.generate_reply(messages=[{"content": prompt, "role": "user"}])

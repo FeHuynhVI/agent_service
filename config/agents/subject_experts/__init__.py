@@ -1,6 +1,5 @@
 """Subject expert agent implementations."""
 
-
 from __future__ import annotations
 
 from ..base_agent import BaseAgent, SubjectExpertAgent  # noqa: F401
