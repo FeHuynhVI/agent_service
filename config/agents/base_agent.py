@@ -4,19 +4,22 @@ Base Agent class for all AutoGen agents
 from config.settings import settings
 from config.llm_config import LLMConfig
 from typing import Any, Dict, List, Optional, Literal, cast
-from autogen import AssistantAgent, UserProxyAgent
+from autogen import AssistantAgent
 from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
+
+HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
+
 
 class BaseAgent:
     """Base class for all agents in the system"""
-    
+
     def __init__(
         self,
         name: str,
         system_message: str,
         llm_config: Optional[Dict[str, Any]] = None,
         max_consecutive_auto_reply: Optional[int] = None,
-        human_input_mode: Optional[Literal["ALWAYS", "NEVER", "TERMINATE"]] = None,
+        human_input_mode: Optional[HumanInputMode] = None,
     ):
         self.name = name
         self.system_message = system_message
@@ -24,9 +27,12 @@ class BaseAgent:
         self.max_consecutive_auto_reply = (
             max_consecutive_auto_reply or settings.max_consecutive_auto_reply
         )
-        self.human_input_mode = human_input_mode or cast(
-            Literal["ALWAYS", "NEVER", "TERMINATE"],
+        default_human_input_mode: HumanInputMode = cast(
+            HumanInputMode,
             settings.human_input_mode,
+        )
+        self.human_input_mode: HumanInputMode = (
+            human_input_mode or default_human_input_mode
         )
         self.agent = self._create_agent()
     

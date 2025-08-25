@@ -9,7 +9,7 @@ from typing import (
     Union,
     Literal,
 )
-from autogen import GroupChat, GroupChatManager, Agent
+from autogen import GroupChat, GroupChatManager, ConversableAgent
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
@@ -24,7 +24,7 @@ class SelectorGroupChat:
     
     def __init__(
         self,
-        agents: List[Agent],
+        agents: List[ConversableAgent],
         max_rounds: Optional[int] = None,
         admin_name: str = "Admin",
         selection_method: str = "auto"  # auto, manual, or custom
@@ -63,7 +63,7 @@ class SelectorGroupChat:
     def _get_selection_method(
         self,
     ) -> Union[
-        Callable[[Agent, GroupChat], Agent],
+        Callable[[ConversableAgent, GroupChat], ConversableAgent],
         Literal["auto", "manual", "random", "round_robin"],
     ]:
         """Get the speaker selection method."""
@@ -79,9 +79,9 @@ class SelectorGroupChat:
         self.selection_method = "custom"
         self.group_chat.speaker_selection_method = selector_function
     
-    def create_subject_selector(self) -> Callable:
+    def create_subject_selector(self) -> Callable[[ConversableAgent, GroupChat], ConversableAgent]:
         """Create a subject-based selector function"""
-        def select_speaker(last_speaker: Agent, groupchat: GroupChat) -> Agent:
+        def select_speaker(last_speaker: ConversableAgent, groupchat: GroupChat) -> ConversableAgent:
             """Custom speaker selection based on message content"""
             messages = groupchat.messages
             if not messages:
@@ -121,7 +121,7 @@ class SelectorGroupChat:
         
         return select_speaker
     
-    def start_chat(self, initial_message: str, sender: Optional[Agent] = None) -> None:
+    def start_chat(self, initial_message: str, sender: Optional[ConversableAgent] = None) -> None:
         """Start the group chat"""
         if sender is None:
             # Create a user proxy to send the initial message
@@ -140,7 +140,7 @@ class SelectorGroupChat:
             clear_history=True
         )
     
-    def add_agent(self, agent: Agent) -> None:
+    def add_agent(self, agent: ConversableAgent) -> None:
         """Add a new agent to the group chat"""
         self.agents.append(agent)
         self.group_chat.agents = self.agents
@@ -162,7 +162,7 @@ class SelectorGroupChat:
         """Clear the chat history"""
         self.group_chat.messages = []
     
-    def get_agent_by_name(self, name: str) -> Optional[Agent]:
+    def get_agent_by_name(self, name: str) -> Optional[ConversableAgent]:
         """Get an agent by name"""
         for agent in self.agents:
             if agent.name == name:
