@@ -41,6 +41,17 @@ Include:
 7. Advantages and limitations
 """
 
+MATH_SOLVE_PROBLEM_PROMPT = """
+Solve the following math problem:
+{problem}
+
+Provide:
+1. Restatement of the problem
+2. Step-by-step solution with reasoning
+3. Final answer
+4. Verification of the result
+"""
+
 PHYSICS_SOLVE_PROBLEM_PROMPT = """
 Solve the following physics problem:
 {problem}
@@ -87,6 +98,17 @@ Include:
 2. Reaction mechanism (if applicable)
 3. Reasoning for the prediction
 4. Possible side products
+"""
+
+BIOLOGY_EXPLAIN_CONCEPT_PROMPT = """
+Explain the following biology concept:
+{concept}
+
+Include:
+1. Definition
+2. Key processes or structures involved
+3. Real-world examples or applications
+4. Common misconceptions
 """
 
 ENGLISH_CORRECT_GRAMMAR_PROMPT = """
@@ -141,10 +163,12 @@ __all__ = [
     "CS_WRITE_CODE_PROMPT",
     "CS_DEBUG_CODE_PROMPT",
     "CS_EXPLAIN_ALGORITHM_PROMPT",
+    "MATH_SOLVE_PROBLEM_PROMPT",
     "PHYSICS_SOLVE_PROBLEM_PROMPT",
     "PHYSICS_EXPLAIN_CONCEPT_PROMPT",
     "CHEM_BALANCE_EQUATION_PROMPT",
     "CHEM_PREDICT_REACTION_PROMPT",
+    "BIOLOGY_EXPLAIN_CONCEPT_PROMPT",
     "ENGLISH_CORRECT_GRAMMAR_PROMPT",
     "ENGLISH_BUILD_VOCABULARY_PROMPT",
     "LIT_ANALYZE_TEXT_PROMPT",
