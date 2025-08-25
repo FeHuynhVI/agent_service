@@ -5,6 +5,10 @@ from typing import List, Dict, Any, Optional, Callable
 from autogen import GroupChat, GroupChatManager, Agent
 from config.settings import settings
 from config.llm_config import LLMConfig
+from config.prompts import (
+    GROUP_CHAT_MANAGER_PROMPT,
+    USER_PROXY_PROMPT,
+)
 
 class SelectorGroupChat:
     """
@@ -46,29 +50,7 @@ class SelectorGroupChat:
         return GroupChatManager(
             groupchat=self.group_chat,
             llm_config=manager_config,
-            system_message="""
-You are the Group Chat Manager coordinating educational discussions.
-
-Your responsibilities:
-1. Select the most appropriate expert for each query
-2. Ensure smooth conversation flow
-3. Prevent circular discussions
-4. Summarize when needed
-5. Manage turn-taking efficiently
-
-Selection criteria:
-- Math questions → Math_Expert
-- Physics questions → Physics_Expert  
-- Chemistry questions → Chemistry_Expert
-- Biology questions → Biology_Expert
-- Programming/CS questions → CS_Expert
-- Literature/writing questions → Literature_Expert
-- English language questions → English_Expert
-- Material requests → Info_Agent
-
-Always select the expert most qualified for the specific question.
-Encourage collaboration between experts when topics overlap.
-"""
+            system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
     def _get_selection_method(self) -> str:
@@ -135,7 +117,7 @@ Encourage collaboration between experts when topics overlap.
             from autogen import UserProxyAgent
             sender = UserProxyAgent(
                 name="User",
-                system_message="You are a student asking questions.",
+                system_message=USER_PROXY_PROMPT,
                 llm_config=False,
                 human_input_mode="NEVER"
             )

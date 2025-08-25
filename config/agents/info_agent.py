@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .base_agent import BaseAgent
 from config.settings import settings
+from config.prompts import INFO_AGENT_PROMPT
 
 class InfoAgent(BaseAgent):
     """Agent for retrieving subject information and materials"""
@@ -14,26 +15,9 @@ class InfoAgent(BaseAgent):
     def __init__(self, data_path: Optional[Path] = None, **kwargs):
         self.data_path = data_path or settings.data_path
         
-        system_message = """
-You are an Information Retrieval Agent responsible for:
-1. Fetching subject syllabi and curriculum information
-2. Retrieving learning materials (documents, audio, video references)
-3. Providing quiz questions and practice materials
-4. Managing educational resources and references
-5. Organizing content by topic and difficulty level
-
-When asked for subject materials:
-- List available resources clearly
-- Provide relevant excerpts or summaries
-- Suggest appropriate materials based on the query
-- Organize information hierarchically
-- Include metadata (difficulty, duration, prerequisites)
-
-You work with subject experts to provide them with necessary materials.
-"""
         super().__init__(
             name="Info_Agent",
-            system_message=system_message,
+            system_message=INFO_AGENT_PROMPT,
             **kwargs
         )
         
