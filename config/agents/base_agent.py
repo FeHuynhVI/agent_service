@@ -23,7 +23,8 @@ class BaseAgent:
     ):
         self.name = name
         self.system_message = system_message
-        self.llm_config = llm_config or LLMConfig.get_config()
+        # Use agent specific configuration if provided, otherwise fall back to defaults
+        self.llm_config = llm_config or LLMConfig.get_agent_config(name)
         self.max_consecutive_auto_reply = (
             max_consecutive_auto_reply or settings.max_consecutive_auto_reply
         )
@@ -74,9 +75,9 @@ class SubjectExpertAgent(BaseAgent):
             expertise_areas, 
             additional_instructions
         )
-        
+
         # Get specialized config for the subject
-        llm_config = kwargs.pop('llm_config', None) or LLMConfig.get_expert_config(subject.lower())
+        llm_config = kwargs.pop('llm_config', None) or LLMConfig.get_expert_config(name)
         
         super().__init__(
             name=name,
