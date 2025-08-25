@@ -145,14 +145,14 @@ class SelectorGroupChat:
     def add_agent(self, agent: ConversableAgent) -> None:
         """Add a new agent to the group chat"""
         self.agents.append(agent)
-        self.group_chat.agents = self.agents
+        self.group_chat.agents = cast(List[Agent], self.agents)
     
     def remove_agent(self, agent_name: str) -> bool:
         """Remove an agent from the group chat"""
         for i, agent in enumerate(self.agents):
             if agent.name == agent_name:
                 self.agents.pop(i)
-                self.group_chat.agents = self.agents
+                self.group_chat.agents = cast(List[Agent], self.agents)
                 return True
         return False
     

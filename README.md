@@ -19,6 +19,22 @@ chat = SelectorGroupChat([...])
 chat.start_chat("Hello")
 ```
 
+## Running
+
+Start the FastAPI application to access the mock subject and chat endpoints:
+
+```
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+Alternatively, you can run the entrypoint directly:
+
+```
+python main.py
+```
+
+The API will be available at `http://localhost:8000` and interactive docs at `http://localhost:8000/docs`.
+
 ## Testing
 
 Run type checking and tests:
