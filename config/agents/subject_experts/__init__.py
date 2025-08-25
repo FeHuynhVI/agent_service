@@ -1,13 +1,5 @@
-"""
-Agents package for the AutoGen Education Service.
+"""Subject expert agent implementations."""
 
-This package provides backwards‑compatibility wrappers around agent
-classes defined at the project root.  It also organizes subject
-expert agents under the ``subject_experts`` subpackage to mirror the
-expected structure.  Importing from ``agents.base_agent`` or
-``agents.subject_experts.math_expert`` will forward to the
-corresponding module at the project root.
-"""
 
 from __future__ import annotations
 
@@ -24,14 +16,11 @@ from .chemistry_expert import ChemistryExpertAgent
 from .literature_expert import LiteratureExpertAgent
 
 __all__ = [
-    "BaseAgent",
-    "InfoAgent",
+    "BiologyExpertAgent",
+    "ChemistryExpertAgent",
     "CSExpertAgent",
+    "EnglishExpertAgent",
+    "LiteratureExpertAgent",
     "MathExpertAgent",
     "PhysicsExpertAgent",
-    "SubjectExpertAgent",
-    "BiologyExpertAgent",
-    "EnglishExpertAgent",
-    "ChemistryExpertAgent",
-    "LiteratureExpertAgent",
 ]

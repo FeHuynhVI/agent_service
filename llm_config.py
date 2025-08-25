@@ -1,42 +1,27 @@
-"""Utility helpers for constructing LLM configuration dictionaries."""
+"""Minimal LLM configuration utilities."""
 
 from typing import Any, Dict
-import os
 
 
 class LLMConfig:
-    """Factory for language‑model configuration dictionaries."""
+    """Utility helpers to construct LLM configuration dictionaries."""
 
-    DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    default_model: str = "gpt-4o-mini"
 
-    @staticmethod
-    def get_config(model: str | None = None, temperature: float = 0.7, **overrides: Any) -> Dict[str, Any]:
-        """Return a basic configuration for an LLM call.
-
-        Parameters
-        ----------
-        model:
-            Optional model name to use.  If omitted, ``DEFAULT_MODEL`` is used.
-        temperature:
-            Sampling temperature for the model.
-        overrides:
-            Additional keyword arguments are merged into the returned dict.
-        """
-        config: Dict[str, Any] = {
-            "model": model or LLMConfig.DEFAULT_MODEL,
-            "temperature": temperature,
-        }
+    @classmethod
+    def get_config(cls, **overrides: Any) -> Dict[str, Any]:
+        """Return a base configuration for the language model."""
+        config: Dict[str, Any] = {"model": cls.default_model, "temperature": 0}
         config.update(overrides)
         return config
 
-    @staticmethod
-    def get_expert_config(subject: str, **overrides: Any) -> Dict[str, Any]:
-        """Return configuration tuned for a particular subject expert.
-
-        Currently this simply proxies to :meth:`get_config`, but the method
-        exists to allow easy per‑subject customisation in the future.
-        """
-        return LLMConfig.get_config(**overrides)
+    @classmethod
+    def get_expert_config(cls, subject: str, **overrides: Any) -> Dict[str, Any]:
+        """Return a configuration tuned for expert agents."""
+        # For now this simply returns the base config with a lower temperature.
+        base = cls.get_config(temperature=0.2)
+        base.update(overrides)
+        return base
 
 
 __all__ = ["LLMConfig"]

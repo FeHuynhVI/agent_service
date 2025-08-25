@@ -1,10 +1,3 @@
-"""Application configuration settings for the AutoGen Education Service."""
-
-from dataclasses import dataclass, field
-from pathlib import Path
-import os
-
-
 @dataclass
 class Settings:
     """Runtime configuration loaded from environment variables.
