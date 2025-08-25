@@ -150,7 +150,9 @@ class InfoAgent(BaseAgent):
         
         return syllabi.get(subject, {"subject": subject, "topics": [], "resources": []})
     
-    def get_quiz(self, subject: str, topic: str = None, difficulty: str = "medium") -> List[Dict[str, Any]]:
+    def get_quiz(
+        self, subject: str, topic: Optional[str] = None, difficulty: str = "medium"
+    ) -> List[Dict[str, Any]]:
         """Get quiz questions for a subject/topic"""
         # Check if we have stored quizzes
         if subject in self.subject_data and self.subject_data[subject]["quizzes"]:
@@ -165,7 +167,9 @@ class InfoAgent(BaseAgent):
         # Generate sample quiz
         return self._generate_sample_quiz(subject, topic, difficulty)
     
-    def _generate_sample_quiz(self, subject: str, topic: str, difficulty: str) -> List[Dict[str, Any]]:
+    def _generate_sample_quiz(
+        self, subject: str, topic: Optional[str], difficulty: str
+    ) -> List[Dict[str, Any]]:
         """Generate sample quiz questions"""
         # This is a simplified example - in production, you'd have a proper question bank
         sample_quizzes = {
