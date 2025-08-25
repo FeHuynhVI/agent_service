@@ -4,7 +4,7 @@ Base Agent class for all AutoGen agents
 from config.settings import settings
 from config.llm_config import LLMConfig
 from typing import Any, Dict, List, Optional, Literal, cast
-from autogen import AssistantAgent
+from autogen import AssistantAgent, OpenAIChatCompletionClient
 from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
 
 HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
@@ -39,10 +39,11 @@ class BaseAgent:
     
     def _create_agent(self) -> AssistantAgent:
         """Create the AutoGen agent"""
+        model_client = OpenAIChatCompletionClient(**self.llm_config)
         return AssistantAgent(
             name=self.name,
             system_message=self.system_message,
-            llm_config=self.llm_config,
+            model_client=model_client,
             max_consecutive_auto_reply=self.max_consecutive_auto_reply,
             human_input_mode=self.human_input_mode,
         )

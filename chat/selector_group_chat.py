@@ -11,7 +11,7 @@ from typing import (
     Sequence,
     cast,
 )
-from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
+from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent, OpenAIChatCompletionClient
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
@@ -57,10 +57,11 @@ class SelectorGroupChat:
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
         manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
+        model_client = OpenAIChatCompletionClient(**manager_config)
 
         return GroupChatManager(
             groupchat=self.group_chat,
-            llm_config=manager_config,
+            model_client=model_client,
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
@@ -133,8 +134,8 @@ class SelectorGroupChat:
             sender = UserProxyAgent(
                 name="User",
                 system_message=USER_PROXY_PROMPT,
-                llm_config=False,
-                human_input_mode="NEVER"
+                model_client=None,
+                human_input_mode="NEVER",
             )
         
         # Initiate the chat
