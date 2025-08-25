@@ -19,13 +19,21 @@ class LLMConfig:
     agent_models: Dict[str, str] = {}
 
     @classmethod
-    def get_config(cls, model: str | None = None, **overrides: Any) -> Dict[str, Any]:
+    def get_config(
+        cls,
+        model: str | None = None,
+        api_key: str | None = None,
+        **overrides: Any,
+    ) -> Dict[str, Any]:
         """Return a base configuration for the language model.
 
         Parameters
         ----------
         model:
             The model name to use. If ``None``, the class ``default_model`` is used.
+        api_key:
+            API key to use for this configuration. If ``None``, falls back to
+            :attr:`api_key`.
         **overrides:
             Additional configuration options to merge into the result.
         """
@@ -35,29 +43,40 @@ class LLMConfig:
         }
         if cls.base_url:
             config["base_url"] = cls.base_url
-        if cls.api_key:
-            config["api_key"] = cls.api_key
+        key = api_key or cls.api_key
+        if key:
+            config["api_key"] = key
         config.update(overrides)
         return config
 
     @classmethod
-    def get_agent_config(cls, agent_name: str, **overrides: Any) -> Dict[str, Any]:
+    def get_agent_config(
+        cls,
+        agent_name: str,
+        api_key: str | None = None,
+        **overrides: Any,
+    ) -> Dict[str, Any]:
         """Return configuration for a specific agent.
 
         This looks up ``agent_name`` in :attr:`agent_models` and falls back to
         :attr:`default_model` when no specific mapping is provided.
         """
         model = cls.agent_models.get(agent_name)
-        return cls.get_config(model=model, **overrides)
+        return cls.get_config(model=model, api_key=api_key, **overrides)
 
     @classmethod
-    def get_expert_config(cls, agent_name: str, **overrides: Any) -> Dict[str, Any]:
+    def get_expert_config(
+        cls,
+        agent_name: str,
+        api_key: str | None = None,
+        **overrides: Any,
+    ) -> Dict[str, Any]:
         """Return a configuration tuned for expert agents.
 
         Expert agents default to a slightly higher temperature for more
         detailed responses while still supporting per-agent model overrides.
         """
-        base = cls.get_agent_config(agent_name, temperature=0.2)
+        base = cls.get_agent_config(agent_name, api_key=api_key, temperature=0.2)
         base.update(overrides)
         return base
 

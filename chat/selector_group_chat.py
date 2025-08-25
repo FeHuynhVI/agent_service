@@ -29,16 +29,18 @@ class SelectorGroupChat:
         agents: Sequence[ConversableAgent],
         max_rounds: Optional[int] = None,
         admin_name: str = "Admin",
-        selection_method: str = "auto"  # auto, manual, or custom
+        selection_method: str = "auto",  # auto, manual, or custom
+        api_key: str | None = None,
     ):
         self.agents: List[ConversableAgent] = list(agents)
         self.admin_name = admin_name
         self.selection_method = selection_method
         self.max_rounds = max_rounds or settings.max_rounds
-        
+        self.api_key = api_key
+
         # Create group chat
         self.group_chat = self._create_group_chat()
-        
+
         # Create group chat manager
         self.manager = self._create_manager()
     
@@ -54,8 +56,8 @@ class SelectorGroupChat:
     
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
-        manager_config = LLMConfig.get_config(temperature=0.3)
-        
+        manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
+
         return GroupChatManager(
             groupchat=self.group_chat,
             llm_config=manager_config,
