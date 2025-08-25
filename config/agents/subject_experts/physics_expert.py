@@ -16,7 +16,7 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 
 from __future__ import annotations
 
-from base_agent import SubjectExpertAgent
+from ..base_agent import SubjectExpertAgent
 
 
 class PhysicsExpertAgent(SubjectExpertAgent):

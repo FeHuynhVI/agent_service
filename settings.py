@@ -1,27 +1,22 @@
-"""Application settings for the AutoGen service."""
-
-from dataclasses import dataclass
-from pathlib import Path
-
-
 @dataclass
 class Settings:
-    """Basic configuration options.
+    """Runtime configuration loaded from environment variables.
 
-    The defaults provide sensible values for development and testing
-    environments. They can be extended or overridden as needed.
-    """
+    The class provides sensible defaults so the package can operate in
+    a development environment without additional configuration."""
 
-    max_rounds: int = 10
-    max_consecutive_auto_reply: int = 3
-    human_input_mode: str = "NEVER"
-    termination_msg: str = "TERMINATE"
-    data_path: Path = Path(__file__).resolve().parent / "data"
+    openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
+    azure_openai_api_key: str = field(default_factory=lambda: os.getenv("AZURE_OPENAI_API_KEY", ""))
+    max_rounds: int = field(default_factory=lambda: int(os.getenv("MAX_ROUNDS", "10")))
+    termination_msg: str = field(default_factory=lambda: os.getenv("TERMINATION_MSG", "TERMINATE"))
+    max_consecutive_auto_reply: int = field(
+        default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_AUTO_REPLY", "3"))
+    )
+    human_input_mode: str = field(default_factory=lambda: os.getenv("HUMAN_INPUT_MODE", "NEVER"))
+    data_path: Path = field(default_factory=lambda: Path(os.getenv("DATA_PATH", "data")))
 
 
-# Global settings instance
+# Instantiate a single settings object that can be imported elsewhere
 settings = Settings()
 
-
 __all__ = ["Settings", "settings"]
-
