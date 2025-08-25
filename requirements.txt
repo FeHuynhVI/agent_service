@@ -1,2 +1,8 @@
 pymongo
 mgclient
+fastapi
+pandas
+autogen
+rich
+colorama
+uvicorn

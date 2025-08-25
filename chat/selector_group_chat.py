@@ -1,7 +1,7 @@
 """
 Selector Group Chat implementation for AutoGen
 """
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional, Callable, Union
 from autogen import GroupChat, GroupChatManager, Agent
 from config.settings import settings
 from config.llm_config import LLMConfig
@@ -18,7 +18,7 @@ class SelectorGroupChat:
     def __init__(
         self,
         agents: List[Agent],
-        max_rounds: int = None,
+        max_rounds: Optional[int] = None,
         admin_name: str = "Admin",
         selection_method: str = "auto"  # auto, manual, or custom
     ):
@@ -53,14 +53,13 @@ class SelectorGroupChat:
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
-    def _get_selection_method(self) -> str:
+    def _get_selection_method(self) -> Union[str, Callable]:
         """Get the speaker selection method"""
         if self.selection_method == "manual":
             return "manual"
-        elif self.selection_method == "custom" and hasattr(self, "custom_selector"):
+        if self.selection_method == "custom" and hasattr(self, "custom_selector"):
             return self.custom_selector
-        else:
-            return "auto"  # Let AutoGen handle selection automatically
+        return "auto"  # Let AutoGen handle selection automatically
     
     def set_custom_selector(self, selector_function: Callable) -> None:
         """Set a custom selector function"""
@@ -99,7 +98,7 @@ class SelectorGroupChat:
             
             # Select agent with highest score
             if agent_scores:
-                selected_name = max(agent_scores, key=agent_scores.get)
+                selected_name = max(agent_scores, key=lambda k: agent_scores[k])
                 for agent in self.agents:
                     if agent.name == selected_name:
                         return agent

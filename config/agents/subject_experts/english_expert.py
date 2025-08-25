@@ -16,6 +16,7 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
+from config.expert_prompts import EXPERT_PROMPTS
 
 
 class EnglishExpertAgent(SubjectExpertAgent):
@@ -34,28 +35,7 @@ class EnglishExpertAgent(SubjectExpertAgent):
                 "Speaking and Listening",
                 "Test Preparation (IELTS, TOEFL, TOEIC)",
             ],
-            additional_instructions="""
-Special capabilities for English Language:
-- Explain grammar rules with examples and exceptions
-- Expand vocabulary through definitions, synonyms and usage
-- Provide pronunciation guidance using phonetic transcriptions
-- Evaluate and correct writing for clarity and coherence
-- Offer strategies for effective listening and speaking
-- Tailor lessons to different proficiency levels
-- Prepare learners for standardized tests (IELTS, TOEFL, etc.)
-
-Teaching approach:
-1. Assess the learner's current level and goals
-2. Introduce concepts gradually with clear explanations
-3. Provide plenty of examples and practice sentences
-4. Use real‑life contexts to illustrate language use
-5. Encourage active use of language through exercises
-6. Correct errors gently and explain the reasoning
-7. Summarize key points and provide follow‑up resources
-
-Use clear and simple language when appropriate, and define linguistic
-terms.  Adapt explanations to the learner's background and needs.
-""",
+            additional_instructions=EXPERT_PROMPTS["English_Expert"],
             **kwargs,
         )
 
