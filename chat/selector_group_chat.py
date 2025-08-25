@@ -8,8 +8,10 @@ from typing import (
     Optional,
     Union,
     Literal,
+    Sequence,
+    cast,
 )
-from autogen import GroupChat, GroupChatManager, ConversableAgent
+from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
@@ -24,12 +26,12 @@ class SelectorGroupChat:
     
     def __init__(
         self,
-        agents: List[ConversableAgent],
+        agents: Sequence[ConversableAgent],
         max_rounds: Optional[int] = None,
         admin_name: str = "Admin",
         selection_method: str = "auto"  # auto, manual, or custom
     ):
-        self.agents = agents
+        self.agents: List[ConversableAgent] = list(agents)
         self.admin_name = admin_name
         self.selection_method = selection_method
         self.max_rounds = max_rounds or settings.max_rounds
@@ -43,7 +45,7 @@ class SelectorGroupChat:
     def _create_group_chat(self) -> GroupChat:
         """Create the group chat instance"""
         return GroupChat(
-            agents=self.agents,
+            agents=cast(List[Agent], self.agents),
             messages=[],
             max_round=self.max_rounds,
             speaker_selection_method=self._get_selection_method(),
