@@ -9,21 +9,26 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from data.data_loader import SubjectDataLoader
+from utils.error_handler import handle_errors
 
 
 app = FastAPI(title="Mock Subject Data API")
 
-data_loader = SubjectDataLoader(base_path=Path(__file__).resolve().parent.parent / "data")
+data_loader = SubjectDataLoader(
+    base_path=Path(__file__).resolve().parent.parent / "data"
+)
 
 
 @app.get("/subjects")
-def list_subjects() -> dict:
+@handle_errors
+async def list_subjects() -> dict:
     """Return all available subjects."""
     return {"subjects": data_loader.subjects}
 
 
 @app.get("/subjects/{subject}/syllabus")
-def get_syllabus(subject: str) -> dict:
+@handle_errors
+async def get_syllabus(subject: str) -> dict:
     """Return the syllabus for a given subject."""
     subject = subject.lower()
     if subject not in data_loader.subjects:
@@ -32,7 +37,8 @@ def get_syllabus(subject: str) -> dict:
 
 
 @app.get("/subjects/{subject}/materials")
-def get_materials(subject: str) -> dict:
+@handle_errors
+async def get_materials(subject: str) -> dict:
     """Return learning materials for a given subject."""
     subject = subject.lower()
     if subject not in data_loader.subjects:
@@ -41,7 +47,8 @@ def get_materials(subject: str) -> dict:
 
 
 @app.get("/subjects/{subject}/quizzes")
-def get_quizzes(subject: str) -> dict:
+@handle_errors
+async def get_quizzes(subject: str) -> dict:
     """Return quiz questions for a given subject."""
     subject = subject.lower()
     if subject not in data_loader.subjects:
@@ -50,4 +57,3 @@ def get_quizzes(subject: str) -> dict:
 
 
 __all__ = ["app"]
-
