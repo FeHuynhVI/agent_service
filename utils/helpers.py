@@ -94,7 +94,7 @@ def format_code(code: str, language: str = "python"):
     syntax = Syntax(code, language, theme="monokai", line_numbers=True)
     return syntax
 
-def save_conversation(messages: List[Dict[str, Any]], filename: str = None):
+def save_conversation(messages: List[Dict[str, Any]], filename: Optional[str] = None):
     """Save conversation to a file"""
     if filename is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

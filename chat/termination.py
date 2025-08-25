@@ -12,8 +12,8 @@ class TerminationHandler:
     
     def __init__(
         self,
-        termination_msg: str = None,
-        max_rounds: int = None,
+        termination_msg: Optional[str] = None,
+        max_rounds: Optional[int] = None,
         check_solved: bool = True
     ):
         self.termination_msg = termination_msg or settings.termination_msg

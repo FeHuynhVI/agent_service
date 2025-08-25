@@ -1,8 +1,4 @@
-"""Simple FastAPI application exposing subject data.
-
-This mock API allows clients to retrieve basic information about
-available subjects, their syllabi, learning materials and quizzes.
-"""
+"""FastAPI application exposing subject data and chat endpoints."""
 
 from pathlib import Path
 
@@ -10,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 
 from data.data_loader import SubjectDataLoader
 from utils.error_handler import handle_errors
+from .chat_controller import router as chat_router
 
 
 app = FastAPI(title="Mock Subject Data API")
@@ -17,6 +14,8 @@ app = FastAPI(title="Mock Subject Data API")
 data_loader = SubjectDataLoader(
     base_path=Path(__file__).resolve().parent.parent / "data"
 )
+
+app.include_router(chat_router)
 
 
 @app.get("/subjects")
@@ -57,3 +56,4 @@ async def get_quizzes(subject: str) -> dict:
 
 
 __all__ = ["app"]
+
