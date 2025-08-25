@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Any, Dict
+from autogen_core.models import ModelFamily
 
 
 class LLMConfig:
@@ -19,6 +20,16 @@ class LLMConfig:
     api_key: str = os.getenv("OPENAI_API_KEY", "")
     #: Mapping of agent names to the model they should use
     agent_models: Dict[str, str] = {}
+    #: Optional model capability descriptions for non-OpenAI models
+    model_infos: Dict[str, Dict[str, Any]] = {
+        default_model: {
+            "vision": False,
+            "function_calling": False,
+            "json_output": False,
+            "structured_output": False,
+            "family": ModelFamily.UNKNOWN,
+        }
+    }
 
     @classmethod
     def get_config(
@@ -48,6 +59,9 @@ class LLMConfig:
         key = api_key or cls.api_key
         if key:
             config["api_key"] = key
+        model_name = config["model"]
+        if model_name in cls.model_infos:
+            config["model_info"] = cls.model_infos[model_name]
         config.update(overrides)
         return config
 
