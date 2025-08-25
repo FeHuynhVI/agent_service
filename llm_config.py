@@ -13,6 +13,8 @@ class LLMConfig:
     default_model: str = "gpt-oss-120b"
     #: Optional base URL for the LLM API
     base_url: str = os.getenv("LLM_BASE_URL", "")
+    #: API key used to authenticate with the LLM provider
+    api_key: str = os.getenv("OPENAI_API_KEY", "")
     #: Mapping of agent names to the model they should use
     agent_models: Dict[str, str] = {}
 
@@ -33,6 +35,8 @@ class LLMConfig:
         }
         if cls.base_url:
             config["base_url"] = cls.base_url
+        if cls.api_key:
+            config["api_key"] = cls.api_key
         config.update(overrides)
         return config
 
