@@ -2,9 +2,11 @@
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 from typing import Literal, cast
 from dataclasses import dataclass, field
 
+load_dotenv()
 
 HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
 
