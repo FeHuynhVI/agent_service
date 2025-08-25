@@ -37,6 +37,20 @@ LLMConfig.agent_models = {
 ```
 
 Agents without an explicit entry fall back to ``LLMConfig.default_model``.
+When using non-OpenAI model names, the underlying
+``OpenAIChatCompletionClient`` requires a ``model_info`` dictionary describing
+the model's capabilities. ``LLMConfig.model_infos`` provides default metadata
+for ``LLMConfig.default_model`` and can be extended for custom models:
+
+```python
+LLMConfig.model_infos["gpt-math-8b"] = {
+    "vision": False,
+    "function_calling": False,
+    "json_output": False,
+    "structured_output": False,
+    "family": "unknown",
+}
+```
 
 ## Running
 
