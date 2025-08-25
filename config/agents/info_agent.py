@@ -5,7 +5,8 @@ import json
 import os
 from typing import Dict, Any, List, Optional
 from pathlib import Path
-from agents.base_agent import BaseAgent
+
+from .base_agent import BaseAgent
 from config.settings import settings
 
 class InfoAgent(BaseAgent):

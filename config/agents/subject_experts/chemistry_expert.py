@@ -1,7 +1,7 @@
 """
 Chemistry Expert Agent
 """
-from agents.base_agent import SubjectExpertAgent
+from ..base_agent import SubjectExpertAgent
 
 class ChemistryExpertAgent(SubjectExpertAgent):
     """Chemistry Expert Agent"""
