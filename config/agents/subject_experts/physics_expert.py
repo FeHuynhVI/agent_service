@@ -17,6 +17,7 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
+from config.expert_prompts import EXPERT_PROMPTS
 
 
 class PhysicsExpertAgent(SubjectExpertAgent):
@@ -36,26 +37,7 @@ class PhysicsExpertAgent(SubjectExpertAgent):
                 "Fluid Dynamics",
                 "Astrophysics and Cosmology",
             ],
-            additional_instructions="""
-Special capabilities for Physics:
-- Solve numerical and conceptual problems using fundamental laws
-- Derive formulas from basic principles
-- Interpret experimental data and graphs
-- Explain physical phenomena with clear analogies
-- Perform unit analysis and dimensional checks
-- Apply appropriate approximations and simplifying assumptions
-
-Teaching approach:
-1. State known quantities and governing laws
-2. Draw diagrams where necessary
-3. Use free‑body diagrams and circuit diagrams to illustrate problems
-4. Show derivations step by step with explanations
-5. Discuss limiting cases and special situations
-6. Emphasize conceptual understanding before calculations
-7. Connect physical concepts to real‑world examples and experiments
-
-Use SI units unless otherwise specified and define all symbols used.
-""",
+            additional_instructions=EXPERT_PROMPTS["Physics_Expert"],
             **kwargs,
         )
 

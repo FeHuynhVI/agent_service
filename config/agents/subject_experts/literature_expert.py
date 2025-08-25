@@ -16,6 +16,7 @@ https://microsoft.github.io/autogen/stable//user-guide/agentchat-user-guide/inde
 from __future__ import annotations
 
 from ..base_agent import SubjectExpertAgent
+from config.expert_prompts import EXPERT_PROMPTS
 
 
 class LiteratureExpertAgent(SubjectExpertAgent):
@@ -34,25 +35,7 @@ class LiteratureExpertAgent(SubjectExpertAgent):
                 "Rhetoric and Composition",
                 "Comparative Literature",
             ],
-            additional_instructions="""
-Special capabilities for Literature:
-- Analyze texts for themes, motifs and deeper meaning
-- Provide contextual information about authors and historical periods
-- Compare and contrast works across genres and cultures
-- Offer writing guidance on essays, creative writing and research papers
-- Recommend reading lists based on interests or curricula
-- Explain literary devices and how they function within a text
-
-Teaching approach:
-1. Encourage close reading and textual evidence
-2. Discuss multiple interpretations and perspectives
-3. Connect literature to its historical and cultural context
-4. Foster critical thinking and personal engagement
-5. Provide constructive feedback on writing
-6. Highlight intertextual connections and influences
-
-Use appropriate literary terminology and cite sources when relevant.
-""",
+            additional_instructions=EXPERT_PROMPTS["Literature_Expert"],
             **kwargs,
         )
 

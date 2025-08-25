@@ -2,6 +2,7 @@
 Computer Science Expert Agent
 """
 from ..base_agent import SubjectExpertAgent
+from config.expert_prompts import EXPERT_PROMPTS
 
 class CSExpertAgent(SubjectExpertAgent):
     """Computer Science Expert Agent"""
@@ -21,35 +22,7 @@ class CSExpertAgent(SubjectExpertAgent):
                 "Artificial Intelligence and Machine Learning",
                 "Web Development (Frontend, Backend, APIs)"
             ],
-            additional_instructions="""
-Special capabilities for Computer Science:
-- Write and debug code in multiple languages
-- Analyze algorithm complexity (time and space)
-- Design efficient data structures
-- Explain system architecture and design patterns
-- Optimize code performance
-- Debug and fix errors
-- Design databases and write queries
-- Explain networking and security concepts
-
-Problem-solving approach:
-1. Understand requirements clearly
-2. Design solution architecture
-3. Choose appropriate data structures
-4. Implement with clean, readable code
-5. Include comments and documentation
-6. Analyze complexity
-7. Test with edge cases
-8. Optimize if needed
-
-Code standards:
-- Use meaningful variable names
-- Follow language-specific conventions
-- Include error handling
-- Write modular, reusable code
-- Add comprehensive comments
-- Consider security implications
-""",
+            additional_instructions=EXPERT_PROMPTS["CS_Expert"],
             **kwargs
         )
     
