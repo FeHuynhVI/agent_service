@@ -63,17 +63,14 @@ class SelectorGroupChat:
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
         manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
-        params = signature(GroupChatManager.__init__).parameters
-        if "model_client" in params and OpenAIChatCompletionClient is not None:
-            model_client = OpenAIChatCompletionClient(**manager_config)
-            return GroupChatManager(
-                groupchat=self.group_chat,
-                model_client=model_client,
-                system_message=GROUP_CHAT_MANAGER_PROMPT,
-            )
+        if OpenAIChatCompletionClient is None:
+            raise RuntimeError("OpenAIChatCompletionClient is required")
+        if "model_client" not in signature(GroupChatManager.__init__).parameters:
+            raise RuntimeError("This AutoGen version lacks model_client support")
+        model_client = OpenAIChatCompletionClient(**manager_config)
         return GroupChatManager(
             groupchat=self.group_chat,
-            llm_config=manager_config,
+            model_client=model_client,
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
@@ -143,21 +140,14 @@ class SelectorGroupChat:
         if sender is None:
             # Create a user proxy to send the initial message
             from autogen import UserProxyAgent
-            params = signature(UserProxyAgent.__init__).parameters
-            if "model_client" in params:
-                sender = UserProxyAgent(
-                    name="User",
-                    system_message=USER_PROXY_PROMPT,
-                    model_client=None,
-                    human_input_mode="NEVER",
-                )
-            else:
-                sender = UserProxyAgent(
-                    name="User",
-                    system_message=USER_PROXY_PROMPT,
-                    llm_config={},
-                    human_input_mode="NEVER",
-                )
+            if "model_client" not in signature(UserProxyAgent.__init__).parameters:
+                raise RuntimeError("This AutoGen version lacks model_client support")
+            sender = UserProxyAgent(
+                name="User",
+                system_message=USER_PROXY_PROMPT,
+                model_client=None,
+                human_input_mode="NEVER",
+            )
         
         # Initiate the chat
         sender.initiate_chat(
