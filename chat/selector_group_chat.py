@@ -52,12 +52,23 @@ class SelectorGroupChat:
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
         manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
-        if "model_client" not in signature(GroupChatManager.__init__).parameters:
-            raise RuntimeError("This AutoGen version lacks model_client support")
-        model_client = LLMConfig.build_model_client(manager_config)
+        params = signature(GroupChatManager.__init__).parameters
+        if "model_client" in params:
+            cfg = dict(manager_config)
+            model_client = cfg.pop("model_client", None)
+            if model_client is None:
+                model_client = LLMConfig.build_model_client(cfg)
+            return GroupChatManager(
+                groupchat=self.group_chat,
+                model_client=model_client,
+                system_message=GROUP_CHAT_MANAGER_PROMPT,
+            )
+        # Older AutoGen versions rely on ``llm_config`` directly
+        cfg = dict(manager_config)
+        cfg.pop("model_client", None)
         return GroupChatManager(
             groupchat=self.group_chat,
-            model_client=model_client,
+            llm_config=cfg,
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
