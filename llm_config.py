@@ -10,7 +10,7 @@ try:  # pragma: no cover - optional dependency
 except Exception:  # pragma: no cover - fallback when autogen_core is missing
     from enum import Enum
 
-    class ModelFamily(str, Enum):
+    class ModelFamily(str, Enum):  # type: ignore[no-redef]
         """Minimal fallback enum used when ``autogen_core`` isn't installed."""
 
         UNKNOWN = "unknown"
@@ -94,7 +94,7 @@ class LLMConfig:
         This looks up ``agent_name`` in :attr:`agent_models` and falls back to
         :attr:`default_model` when no specific mapping is provided.
         """
-        model = cls.agent_models.get(agent_name)
+        model = overrides.pop("model", cls.agent_models.get(agent_name))
         return cls.get_config(model=model, api_key=api_key, **overrides)
 
     @classmethod
@@ -109,8 +109,9 @@ class LLMConfig:
         Expert agents default to a slightly higher temperature for more
         detailed responses while still supporting per-agent model overrides.
         """
-        base = cls.get_agent_config(agent_name, api_key=api_key, temperature=0.2)
-        base.update(overrides)
+        temp = overrides.pop("temperature", 0.2)
+        base = cls.get_agent_config(agent_name, api_key=api_key, **overrides)
+        base["temperature"] = temp
         return base
 
 

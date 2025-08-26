@@ -5,7 +5,7 @@ from autogen import AssistantAgent
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
-from typing import Any, Dict, List, Optional, Literal, cast
+from typing import Any, Dict, List, Optional, Literal, cast, Union
 from inspect import signature
 
 try:  # pragma: no cover - optional dependency
@@ -23,15 +23,23 @@ class BaseAgent:
         self,
         name: str,
         system_message: str,
-        llm_config: Optional[Dict[str, Any]] = None,
+        llm_config: Optional[Union[Dict[str, Any], str]] = None,
         max_consecutive_auto_reply: Optional[int] = None,
         human_input_mode: Optional[HumanInputMode] = None,
     ):
         self.name = name
         self.system_message = system_message
-        # Use agent specific configuration if provided, otherwise fall back to defaults
-        print(f"LLM Config for {name}: {llm_config} {LLMConfig.get_agent_config(name)}")
-        self.llm_config = llm_config or LLMConfig.get_agent_config(name)
+        # Merge any custom configuration with defaults so required fields like
+        # ``model_info`` are always present.  ``llm_config`` may be either a
+        # configuration dictionary or simply a model name string.
+        overrides: Dict[str, Any]
+        if isinstance(llm_config, str):
+            overrides = {"model": llm_config}
+        elif isinstance(llm_config, dict):
+            overrides = llm_config
+        else:
+            overrides = {}
+        self.llm_config = LLMConfig.get_agent_config(name, **overrides)
         self.max_consecutive_auto_reply = (
             max_consecutive_auto_reply or settings.max_consecutive_auto_reply
         )
@@ -46,22 +54,15 @@ class BaseAgent:
     
     def _create_agent(self) -> AssistantAgent:
         """Create the AutoGen agent"""
-        params = signature(AssistantAgent.__init__).parameters
-        if "model_client" in params and OpenAIChatCompletionClient is not None:
-            model_client = OpenAIChatCompletionClient(**self.llm_config)
-            return AssistantAgent(
-                name=self.name,
-                system_message=self.system_message,
-                model_client=model_client,
-                max_consecutive_auto_reply=self.max_consecutive_auto_reply,
-                human_input_mode=self.human_input_mode,
-            )
-        # Fallback for legacy AutoGen versions that expect ``llm_config``
-        llm_cfg = {k: v for k, v in self.llm_config.items() if k != "model_info"}
+        if OpenAIChatCompletionClient is None:
+            raise RuntimeError("OpenAIChatCompletionClient is required")
+        if "model_client" not in signature(AssistantAgent.__init__).parameters:
+            raise RuntimeError("This AutoGen version lacks model_client support")
+        model_client = OpenAIChatCompletionClient(**self.llm_config)
         return AssistantAgent(
             name=self.name,
             system_message=self.system_message,
-            llm_config=llm_cfg,
+            model_client=model_client,
             max_consecutive_auto_reply=self.max_consecutive_auto_reply,
             human_input_mode=self.human_input_mode,
         )
@@ -95,8 +96,17 @@ class SubjectExpertAgent(BaseAgent):
             additional_instructions
         )
 
-        # Get specialized config for the subject
-        llm_config = kwargs.pop('llm_config', None) or LLMConfig.get_expert_config(name)
+        # Get specialized config for the subject, allowing callers to override
+        # individual fields or provide a simple model name string.
+        raw_cfg = kwargs.pop('llm_config', None)
+        overrides: Dict[str, Any]
+        if isinstance(raw_cfg, str):
+            overrides = {"model": raw_cfg}
+        elif isinstance(raw_cfg, dict):
+            overrides = raw_cfg
+        else:
+            overrides = {}
+        llm_config = LLMConfig.get_expert_config(name, **overrides)
         
         super().__init__(
             name=name,
