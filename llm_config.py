@@ -60,8 +60,16 @@ class LLMConfig:
         if key:
             config["api_key"] = key
         model_name = config["model"]
-        if model_name in cls.model_infos:
-            config["model_info"] = cls.model_infos[model_name]
+        # Ensure ``model_info`` is always populated for non-OpenAI models.
+        # ``OpenAIChatCompletionClient`` requires capability metadata when the
+        # model name is unknown to the service. We therefore fall back to the
+        # default model's information when the requested model lacks a
+        # dedicated entry.
+        config["model_info"] = (
+            cls.model_infos.get(model_name)
+            or cls.model_infos.get(cls.default_model)
+            or {}
+        )
         config.update(overrides)
         return config
 
