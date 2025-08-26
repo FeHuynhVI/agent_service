@@ -11,8 +11,13 @@ from typing import (
     Sequence,
     cast,
 )
-from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
+from inspect import signature
+
+try:  # pragma: no cover - optional dependency
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+except Exception:  # pragma: no cover
+    OpenAIChatCompletionClient = None  # type: ignore
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
@@ -58,11 +63,17 @@ class SelectorGroupChat:
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
         manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
-        model_client = OpenAIChatCompletionClient(**manager_config)
-
+        params = signature(GroupChatManager.__init__).parameters
+        if "model_client" in params and OpenAIChatCompletionClient is not None:
+            model_client = OpenAIChatCompletionClient(**manager_config)
+            return GroupChatManager(
+                groupchat=self.group_chat,
+                model_client=model_client,
+                system_message=GROUP_CHAT_MANAGER_PROMPT,
+            )
         return GroupChatManager(
             groupchat=self.group_chat,
-            model_client=model_client,
+            llm_config=manager_config,
             system_message=GROUP_CHAT_MANAGER_PROMPT,
         )
     
@@ -132,12 +143,21 @@ class SelectorGroupChat:
         if sender is None:
             # Create a user proxy to send the initial message
             from autogen import UserProxyAgent
-            sender = UserProxyAgent(
-                name="User",
-                system_message=USER_PROXY_PROMPT,
-                model_client=None,
-                human_input_mode="NEVER",
-            )
+            params = signature(UserProxyAgent.__init__).parameters
+            if "model_client" in params:
+                sender = UserProxyAgent(
+                    name="User",
+                    system_message=USER_PROXY_PROMPT,
+                    model_client=None,
+                    human_input_mode="NEVER",
+                )
+            else:
+                sender = UserProxyAgent(
+                    name="User",
+                    system_message=USER_PROXY_PROMPT,
+                    llm_config={},
+                    human_input_mode="NEVER",
+                )
         
         # Initiate the chat
         sender.initiate_chat(

@@ -4,7 +4,16 @@ from __future__ import annotations
 
 import os
 from typing import Any, Dict
-from autogen_core.models import ModelFamily
+
+try:  # pragma: no cover - optional dependency
+    from autogen_core.models import ModelFamily  # type: ignore
+except Exception:  # pragma: no cover - fallback when autogen_core is missing
+    from enum import Enum
+
+    class ModelFamily(str, Enum):
+        """Minimal fallback enum used when ``autogen_core`` isn't installed."""
+
+        UNKNOWN = "unknown"
 
 
 class LLMConfig:
