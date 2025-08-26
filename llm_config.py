@@ -46,48 +46,6 @@ class LLMConfig:
     }
 
     @classmethod
-    def get_config(
-        cls,
-        model: str | None = None,
-        api_key: str | None = None,
-        **overrides: Any,
-    ) -> Dict[str, Any]:
-        """Return a base configuration for the language model.
-
-        Parameters
-        ----------
-        model:
-            The model name to use. If ``None``, the class ``default_model`` is used.
-        api_key:
-            API key to use for this configuration. If ``None``, falls back to
-            :attr:`api_key`.
-        **overrides:
-            Additional configuration options to merge into the result.
-        """
-        config: Dict[str, Any] = {
-            "model": model or cls.default_model,
-            "temperature": 0,
-        }
-        if cls.base_url:
-            config["base_url"] = cls.base_url
-        key = api_key or cls.api_key
-        if key:
-            config["api_key"] = key
-        model_name = config["model"]
-        # Ensure ``model_info`` is always populated for non-OpenAI models.
-        # ``OpenAIChatCompletionClient`` requires capability metadata when the
-        # model name is unknown to the service. We therefore fall back to the
-        # default model's information when the requested model lacks a
-        # dedicated entry.
-        config["model_info"] = (
-            cls.model_infos.get(model_name)
-            or cls.model_infos.get(cls.default_model)
-            or {}
-        )
-        config.update(overrides)
-        return config
-
-    @classmethod
     def get_agent_config(
         cls,
         agent_name: str,
@@ -96,28 +54,30 @@ class LLMConfig:
     ) -> Dict[str, Any]:
         """Return configuration for a specific agent.
 
-        This looks up ``agent_name`` in :attr:`agent_models` and falls back to
-        :attr:`default_model` when no specific mapping is provided.
+        This first resolves the model for the given ``agent_name`` and then
+        constructs the base configuration, ensuring required metadata like
+        ``model_info`` is always included. If ``agent_name`` is not mapped in
+        :attr:`agent_models`, the :attr:`default_model` is used.
         """
-        model = overrides.pop("model", cls.agent_models.get(agent_name))
-        return cls.get_config(model=model, api_key=api_key, **overrides)
-
-    @classmethod
-    def get_expert_config(
-        cls,
-        agent_name: str,
-        api_key: str | None = None,
-        **overrides: Any,
-    ) -> Dict[str, Any]:
-        """Return a configuration tuned for expert agents.
-
-        Expert agents default to a slightly higher temperature for more
-        detailed responses while still supporting per-agent model overrides.
-        """
-        temp = overrides.pop("temperature", 0.2)
-        base = cls.get_agent_config(agent_name, api_key=api_key, **overrides)
-        base["temperature"] = temp
-        return base
+        model = overrides.pop(
+            "model", cls.agent_models.get(agent_name) or cls.default_model
+        )
+        config: Dict[str, Any] = {
+            "model": model,
+            "temperature": 0,
+        }
+        if cls.base_url:
+            config["base_url"] = cls.base_url
+        key = api_key or cls.api_key
+        if key:
+            config["api_key"] = key
+        config["model_info"] = (
+            cls.model_infos.get(model)
+            or cls.model_infos.get(cls.default_model)
+            or {}
+        )
+        config.update(overrides)
+        return config
 
     @staticmethod
     def build_model_client(config: Dict[str, Any]):
@@ -131,7 +91,9 @@ class LLMConfig:
                 "OpenAIChatCompletionClient is required. "
                 "Install it with 'pip install \"autogen-ext[openai]\"'.",
             )
-        return OpenAIChatCompletionClient(**config)
+        cfg = dict(config)
+        cfg.pop("model_info", None)
+        return OpenAIChatCompletionClient(**cfg)
 
 
 __all__ = ["LLMConfig"]
