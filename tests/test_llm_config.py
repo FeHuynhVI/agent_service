@@ -9,7 +9,7 @@ from llm_config import LLMConfig  # type: ignore
 from autogen_core.models import ModelFamily
 
 
-def test_get_config_falls_back_to_default_model_info() -> None:
+def test_get_agent_config_falls_back_to_default_model_info() -> None:
     """Unknown models should reuse the default model's information."""
     # Backup current configuration so the test is isolated.
     original_default = LLMConfig.default_model
@@ -28,7 +28,7 @@ def test_get_config_falls_back_to_default_model_info() -> None:
             }
         }
 
-        cfg = LLMConfig.get_config(model="custom-model")
+        cfg = LLMConfig.get_agent_config("dummy", model="custom-model")
         assert cfg["model_info"] == LLMConfig.model_infos["fallback-model"]
     finally:
         # Restore original global state for any following tests.

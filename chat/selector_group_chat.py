@@ -51,7 +51,9 @@ class SelectorGroupChat:
     
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
-        manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
+        manager_config = LLMConfig.get_agent_config(
+            "group_chat_manager", temperature=0.3, api_key=self.api_key
+        )
         params = signature(GroupChatManager.__init__).parameters
         if "model_client" in params:
             cfg = dict(manager_config)
