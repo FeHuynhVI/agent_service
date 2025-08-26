@@ -56,21 +56,13 @@ class BaseAgent:
     
     def _create_agent(self) -> AssistantAgent:
         """Create the AutoGen agent"""
-        params = signature(AssistantAgent.__init__).parameters
-        if "model_client" in params:
-            model_client = LLMConfig.build_model_client(self.llm_config)
-            return AssistantAgent(
-                name=self.name,
-                system_message=self.system_message,
-                model_client=model_client,
-                max_consecutive_auto_reply=self.max_consecutive_auto_reply,
-                human_input_mode=self.human_input_mode,
-            )
-        # Fallback for older AutoGen versions that use ``llm_config`` instead
+        if "model_client" not in signature(AssistantAgent.__init__).parameters:
+            raise RuntimeError("This AutoGen version lacks model_client support")
+        model_client = LLMConfig.build_model_client(self.llm_config)
         return AssistantAgent(
             name=self.name,
             system_message=self.system_message,
-            llm_config=self.llm_config,
+            model_client=model_client,
             max_consecutive_auto_reply=self.max_consecutive_auto_reply,
             human_input_mode=self.human_input_mode,
         )
