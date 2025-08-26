@@ -4,8 +4,12 @@ This project provides utilities for building multi-agent group chats powered by 
 
 ## Installation
 
+
 ```
 pip install -r requirements.txt
+
+# Install the OpenAI extension for AutoGen
+pip install "autogen-ext[openai]"
 ```
 
 ## Usage

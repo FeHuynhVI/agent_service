@@ -14,37 +14,20 @@ from config.agents import (
     LiteratureExpertAgent,
     InfoAgent,
 )
-from config.llm_config import LLMConfig
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
 def _build_group_chat(api_key: str | None = None) -> SelectorGroupChat:
     agents = [
-        MathExpertAgent(
-            llm_config=LLMConfig.get_expert_config("Math_Expert", api_key=api_key)
-        ).get_agent(),
-        PhysicsExpertAgent(
-            llm_config=LLMConfig.get_expert_config("Physics_Expert", api_key=api_key)
-        ).get_agent(),
-        ChemistryExpertAgent(
-            llm_config=LLMConfig.get_expert_config("Chemistry_Expert", api_key=api_key)
-        ).get_agent(),
-        BiologyExpertAgent(
-            llm_config=LLMConfig.get_expert_config("Biology_Expert", api_key=api_key)
-        ).get_agent(),
-        CSExpertAgent(
-            llm_config=LLMConfig.get_expert_config("CS_Expert", api_key=api_key)
-        ).get_agent(),
-        LiteratureExpertAgent(
-            llm_config=LLMConfig.get_expert_config("Literature_Expert", api_key=api_key)
-        ).get_agent(),
-        EnglishExpertAgent(
-            llm_config=LLMConfig.get_expert_config("English_Expert", api_key=api_key)
-        ).get_agent(),
-        InfoAgent(
-            llm_config=LLMConfig.get_agent_config("Info_Agent", api_key=api_key)
-        ).get_agent(),
+        MathExpertAgent(api_key=api_key).get_agent(),
+        PhysicsExpertAgent(api_key=api_key).get_agent(),
+        ChemistryExpertAgent(api_key=api_key).get_agent(),
+        BiologyExpertAgent(api_key=api_key).get_agent(),
+        CSExpertAgent(api_key=api_key).get_agent(),
+        LiteratureExpertAgent(api_key=api_key).get_agent(),
+        EnglishExpertAgent(api_key=api_key).get_agent(),
+        InfoAgent(api_key=api_key).get_agent(),
     ]
     return SelectorGroupChat(agents=agents, api_key=api_key)
 
