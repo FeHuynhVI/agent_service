@@ -13,11 +13,6 @@ from typing import (
 )
 from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
 from inspect import signature
-
-try:  # pragma: no cover - optional dependency
-    from autogen_ext.models.openai import OpenAIChatCompletionClient
-except Exception:  # pragma: no cover
-    OpenAIChatCompletionClient = None  # type: ignore
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
@@ -63,11 +58,9 @@ class SelectorGroupChat:
     def _create_manager(self) -> GroupChatManager:
         """Create the group chat manager"""
         manager_config = LLMConfig.get_config(temperature=0.3, api_key=self.api_key)
-        if OpenAIChatCompletionClient is None:
-            raise RuntimeError("OpenAIChatCompletionClient is required")
         if "model_client" not in signature(GroupChatManager.__init__).parameters:
             raise RuntimeError("This AutoGen version lacks model_client support")
-        model_client = OpenAIChatCompletionClient(**manager_config)
+        model_client = LLMConfig.build_model_client(manager_config)
         return GroupChatManager(
             groupchat=self.group_chat,
             model_client=model_client,

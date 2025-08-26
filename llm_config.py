@@ -15,6 +15,11 @@ except Exception:  # pragma: no cover - fallback when autogen_core is missing
 
         UNKNOWN = "unknown"
 
+try:  # pragma: no cover - optional dependency
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+except Exception:  # pragma: no cover - autogen-ext may not be installed
+    OpenAIChatCompletionClient = None  # type: ignore
+
 
 class LLMConfig:
     """Utility helpers to construct LLM configuration dictionaries."""
@@ -113,6 +118,20 @@ class LLMConfig:
         base = cls.get_agent_config(agent_name, api_key=api_key, **overrides)
         base["temperature"] = temp
         return base
+
+    @staticmethod
+    def build_model_client(config: Dict[str, Any]):
+        """Instantiate the OpenAI chat completion client.
+
+        Centralises the import of :class:`OpenAIChatCompletionClient` so that
+        callers need not handle the optional dependency themselves.
+        """
+        if OpenAIChatCompletionClient is None:
+            raise RuntimeError(
+                "OpenAIChatCompletionClient is required. "
+                "Install it with 'pip install \"autogen-ext[openai]\"'.",
+            )
+        return OpenAIChatCompletionClient(**config)
 
 
 __all__ = ["LLMConfig"]
