@@ -3,22 +3,16 @@
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
-    Optional,
-    Union,
-    Literal,
-    Sequence,
-    cast,
+    Dict, List, Optional,
+    Union, Literal, Sequence, cast,
 )
-from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
 from inspect import signature
 from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import (
-    GROUP_CHAT_MANAGER_PROMPT,
-    USER_PROXY_PROMPT,
+    GROUP_CHAT_MANAGER_PROMPT, USER_PROXY_PROMPT,
 )
+from autogen import Agent, GroupChat, GroupChatManager, ConversableAgent
 
 class SelectorGroupChat:
     """
