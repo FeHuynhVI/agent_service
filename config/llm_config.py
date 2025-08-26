@@ -10,9 +10,4 @@ from __future__ import annotations
 
 from llm_config import LLMConfig  # noqa: F401
 
-LLMConfig.agent_models = {
-    "Math_Expert": "gpt-oss-120b",
-    "Info_Agent": "gpt-oss-120b",
-}
-
 __all__ = ["LLMConfig"]
