@@ -6,7 +6,12 @@ from config.settings import settings
 from config.llm_config import LLMConfig
 from config.prompts import SUBJECT_EXPERT_PROMPT_TEMPLATE
 from typing import Any, Dict, List, Optional, Literal, cast
-from autogen_ext.models.openai import OpenAIChatCompletionClient
+from inspect import signature
+
+try:  # pragma: no cover - optional dependency
+    from autogen_ext.models.openai import OpenAIChatCompletionClient
+except Exception:  # pragma: no cover - autogen_ext may be unavailable
+    OpenAIChatCompletionClient = None  # type: ignore
 
 HumanInputMode = Literal["ALWAYS", "NEVER", "TERMINATE"]
 
@@ -41,11 +46,22 @@ class BaseAgent:
     
     def _create_agent(self) -> AssistantAgent:
         """Create the AutoGen agent"""
-        model_client = OpenAIChatCompletionClient(**self.llm_config)
+        params = signature(AssistantAgent.__init__).parameters
+        if "model_client" in params and OpenAIChatCompletionClient is not None:
+            model_client = OpenAIChatCompletionClient(**self.llm_config)
+            return AssistantAgent(
+                name=self.name,
+                system_message=self.system_message,
+                model_client=model_client,
+                max_consecutive_auto_reply=self.max_consecutive_auto_reply,
+                human_input_mode=self.human_input_mode,
+            )
+        # Fallback for legacy AutoGen versions that expect ``llm_config``
+        llm_cfg = {k: v for k, v in self.llm_config.items() if k != "model_info"}
         return AssistantAgent(
             name=self.name,
             system_message=self.system_message,
-            model_client=model_client,
+            llm_config=llm_cfg,
             max_consecutive_auto_reply=self.max_consecutive_auto_reply,
             human_input_mode=self.human_input_mode,
         )
