@@ -58,6 +58,7 @@ class SelectorGroupChat:
         if "model_client" in params:
             cfg = dict(manager_config)
             model_client = cfg.pop("model_client", None)
+            cfg.pop("model_info", None)
             if model_client is None:
                 model_client = LLMConfig.build_model_client(cfg)
             return GroupChatManager(
@@ -68,6 +69,7 @@ class SelectorGroupChat:
         # Older AutoGen versions rely on ``llm_config`` directly
         cfg = dict(manager_config)
         cfg.pop("model_client", None)
+        cfg.pop("model_info", None)
         return GroupChatManager(
             groupchat=self.group_chat,
             llm_config=cfg,

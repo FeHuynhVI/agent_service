@@ -60,6 +60,7 @@ class BaseAgent:
         if "model_client" in params:
             cfg = dict(self.llm_config)
             model_client = cfg.pop("model_client", None)
+            cfg.pop("model_info", None)
             if model_client is None:
                 model_client = LLMConfig.build_model_client(cfg)
             return AssistantAgent(
@@ -72,6 +73,7 @@ class BaseAgent:
         # Fallback for older AutoGen versions that expect ``llm_config``
         cfg = dict(self.llm_config)
         cfg.pop("model_client", None)
+        cfg.pop("model_info", None)
         return AssistantAgent(
             name=self.name,
             system_message=self.system_message,
@@ -120,8 +122,9 @@ class SubjectExpertAgent(BaseAgent):
             overrides = raw_cfg
         else:
             overrides = {}
-        llm_config = LLMConfig.get_expert_config(
-            name, api_key=api_key, **overrides
+        temp = overrides.pop("temperature", 0.2)
+        llm_config = LLMConfig.get_agent_config(
+            name, api_key=api_key, temperature=temp, **overrides
         )
 
         super().__init__(

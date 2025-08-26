@@ -79,23 +79,6 @@ class LLMConfig:
         config.update(overrides)
         return config
 
-    @classmethod
-    def get_expert_config(
-        cls,
-        agent_name: str,
-        api_key: str | None = None,
-        **overrides: Any,
-    ) -> Dict[str, Any]:
-        """Return a configuration tuned for expert agents.
-
-        Expert agents default to a slightly higher temperature for more
-        detailed responses while still supporting per-agent model overrides.
-        """
-        temp = overrides.pop("temperature", 0.2)
-        base = cls.get_agent_config(agent_name, api_key=api_key, **overrides)
-        base["temperature"] = temp
-        return base
-
     @staticmethod
     def build_model_client(config: Dict[str, Any]):
         """Instantiate the OpenAI chat completion client.
@@ -108,7 +91,9 @@ class LLMConfig:
                 "OpenAIChatCompletionClient is required. "
                 "Install it with 'pip install \"autogen-ext[openai]\"'.",
             )
-        return OpenAIChatCompletionClient(**config)
+        cfg = dict(config)
+        cfg.pop("model_info", None)
+        return OpenAIChatCompletionClient(**cfg)
 
 
 __all__ = ["LLMConfig"]
