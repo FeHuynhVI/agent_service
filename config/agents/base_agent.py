@@ -30,12 +30,15 @@ class BaseAgent:
         # configuration dictionary or simply a model name string.
         if isinstance(llm_config, dict):
             if "model_info" in llm_config and "model" in llm_config:
+                print("Using provided model_info and model")
                 self.llm_config = dict(llm_config)
             else:
+                print("Using model from llm_config dict")
                 self.llm_config = LLMConfig.get_agent_config(
                     name, api_key=api_key, **llm_config
                 )
         else:
+            print("Using model from llm_config string or default")
             overrides: Dict[str, Any] = (
                 {"model": llm_config} if isinstance(llm_config, str) else {}
             )

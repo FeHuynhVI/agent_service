@@ -144,6 +144,7 @@ class SelectorGroupChat:
             from autogen import UserProxyAgent
             params = signature(UserProxyAgent.__init__).parameters
             if "model_client" in params:
+                print("Using model_client for UserProxyAgent")
                 sender = UserProxyAgent(
                     name="User",
                     system_message=USER_PROXY_PROMPT,
@@ -151,6 +152,7 @@ class SelectorGroupChat:
                     human_input_mode="NEVER",
                 )
             else:
+                print("Using llm_config for UserProxyAgent")
                 sender = UserProxyAgent(
                     name="User",
                     system_message=USER_PROXY_PROMPT,
@@ -158,6 +160,7 @@ class SelectorGroupChat:
                 )
         
         # Initiate the chat
+        print("Starting chat with initial message:", initial_message)
         sender.initiate_chat(
             self.manager,
             message=initial_message,
