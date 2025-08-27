@@ -40,6 +40,18 @@ LLMConfig.agent_models = {
 }
 ```
 
+The ``create_team`` helper reads connection details from environment variables
+to simplify configuration:
+
+```bash
+export LLM_API_KEY="sk-..."
+export LLM_BASE_URL="https://mkp-api.fptcloud.com"
+export LLM_MODEL="gpt-oss-120b"
+```
+
+You can override these defaults by passing ``api_key``, ``base_url``, ``model``
+or custom ``context_data`` directly to :code:`create_team`.
+
 Agents without an explicit entry fall back to ``LLMConfig.default_model``.
 When using non-OpenAI model names, the underlying
 ``OpenAIChatCompletionClient`` requires a ``model_info`` dictionary describing
