@@ -1,10 +1,13 @@
-"""Create groups of conversational agents."""
+"""Create groups of conversational agents and run demo chats."""
 
 from .agent_base import (
+    initiate_group_chat,
     ContextVariables,
+    AutoPattern,
     ConversableAgent,
     AssistantAgent,
     LLMConfig,
+    logger,
 )
 from .prompts import (
     build_subject_system_message,
@@ -159,6 +162,5 @@ def create_team(model: str = "gpt-oss-120b", temperature: float = 0.2):
     }
 
     return all_agents, user_agent, group_manager_args, context
-
 
 __all__ = ["create_team"]
