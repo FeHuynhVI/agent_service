@@ -175,16 +175,23 @@ def create_team(
         subject_agents = [_make_expert_agent(**cfg) for cfg in EXPERT_DEFINITIONS]
 
         all_agents = [info_agent, *subject_agents]
+
+        def is_termination_msg(msg: dict) -> bool:
+            content = msg.get("content")
+            return isinstance(content, str) and content.rstrip().endswith("TERMINATE")
+
         for agent in all_agents:
             personalizer = make_personalization_updater(agent, context)
             updater_callable = chain_updaters(personalizer)
             setattr(agent, "update_agent_state_before_reply", updater_callable)
+            setattr(agent, "_is_termination_msg", is_termination_msg)
 
         user_agent = ConversableAgent(
             name="student",
             human_input_mode="NEVER",
             system_message="You are a student asking questions.",
         )
+        setattr(user_agent, "_is_termination_msg", is_termination_msg)
 
     group_manager_args = {
         "llm_config": llm_config,

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from utils.error_handler import handle_errors
 
-from .agent_base import AutoPattern, initiate_group_chat
+from .agent_base import AutoPattern
 from .team_builder import create_team
 
 
@@ -56,6 +56,55 @@ def _build_pattern(agents, user_agent, group_manager_args, context) -> AutoPatte
     )
 
 
+def _run_group_chat(pattern: AutoPattern, message: str, max_rounds: int):
+    """Run a group chat and allow early termination when agents output TERMINATE."""
+
+    from autogen.agentchat.chat import cleanup_temp_user_messages
+
+    (
+        _,
+        _,
+        _,
+        context_variables,
+        _,
+        _,
+        _,
+        _,
+        manager,
+        processed_messages,
+        last_agent,
+        _,
+        _,
+    ) = pattern.prepare_group_chat(max_rounds=max_rounds, messages=message)
+
+    def is_termination_msg(msg: dict) -> bool:
+        content = msg.get("content")
+        return isinstance(content, str) and content.rstrip().endswith("TERMINATE")
+
+    setattr(manager, "_is_termination_msg", is_termination_msg)
+
+    if len(processed_messages) > 1:
+        last_agent, last_message = manager.resume(messages=processed_messages)
+        clear_history = False
+    else:
+        last_message = processed_messages[0]
+        clear_history = True
+
+    if last_agent is None:
+        raise ValueError("No agent selected to start the conversation")
+
+    chat_result = last_agent.initiate_chat(
+        manager,
+        message=last_message,
+        clear_history=clear_history,
+        summary_method=pattern.summary_method,
+    )
+
+    cleanup_temp_user_messages(chat_result)
+
+    return chat_result, context_variables, manager.last_speaker
+
+
 @router.post("/", response_model=ChatResponse, summary="Run a chat with the expert team")
 @handle_errors
 async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
@@ -72,10 +121,10 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
     pattern = _build_pattern(agents, user_agent, group_manager_args, context)
 
     result, _ctx, _last_agent = await asyncio.to_thread(
-        initiate_group_chat,
-        pattern=pattern,
-        messages=payload.message,
-        max_rounds=payload.max_rounds,
+        _run_group_chat,
+        pattern,
+        payload.message,
+        payload.max_rounds,
     )
 
     if not isinstance(result, str):
@@ -88,6 +137,7 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
                 result = str(result)
         else:
             result = str(result)
+    result = result.replace("TERMINATE", "").strip()
 
     return ChatResponse(result=result)
 
