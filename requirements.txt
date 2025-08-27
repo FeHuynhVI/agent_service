@@ -6,5 +6,6 @@ autogen
 rich
 colorama
 uvicorn
+ag2
 ag2[openai]
 autogen-ext[openai]
