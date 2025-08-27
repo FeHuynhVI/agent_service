@@ -78,6 +78,17 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
         max_rounds=payload.max_rounds,
     )
 
+    if not isinstance(result, str):
+        if getattr(result, "summary", None):
+            result = result.summary  # type: ignore[assignment]
+        elif getattr(result, "chat_history", None):
+            try:
+                result = result.chat_history[-1].get("content", "")  # type: ignore[index]
+            except Exception:
+                result = str(result)
+        else:
+            result = str(result)
+
     return ChatResponse(result=result)
 
 
