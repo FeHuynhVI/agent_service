@@ -163,36 +163,4 @@ def create_team(model: str = "gpt-oss-120b", temperature: float = 0.2):
 
     return all_agents, user_agent, group_manager_args, context
 
-
-def run_demo():
-    agents, user, group_manager_args, context = create_team()
-
-    initial_agent = next(a for a in agents if a.name == "Info_Agent")
-
-    pattern = AutoPattern(
-        initial_agent=initial_agent,
-        agents=agents,  # type: ignore
-        user_agent=user,
-        group_manager_args=group_manager_args,
-        context_variables=context,
-    )
-
-    messages = (
-        "Cô/chú ơi, giúp em 2 việc: (1) giải phương trình bậc hai 2x^2 - 3x - 2 = 0 "
-        "và (2) gợi ý cho em vài bài luyện đọc tiếng Anh về chủ đề môi trường."
-    )
-
-    result, ctx, last_agent = initiate_group_chat(
-        pattern=pattern,
-        messages=messages,
-        max_rounds=8,
-    )
-
-    print("\n===== KẾT QUẢ CUỐI CÙNG =====")
-    print(result)
-
-
-__all__ = ["create_team", "run_demo"]
-
-if __name__ == "__main__":
-    run_demo()
+__all__ = ["create_team"]
