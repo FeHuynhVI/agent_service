@@ -26,6 +26,9 @@ DEFAULT_CONTEXT: Dict[str, str] = {
     "goals": "Hiểu sâu khái niệm và làm bài tập có hướng dẫn",
 }
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def _make_expert_agent(
     name: str, subject: str, expertise: List[str], description: str
@@ -147,8 +150,8 @@ def create_team(
 ):
     """Return (agents_list, user_agent, group_manager_args, context_variables)."""
 
-    model = model or os.getenv("LLM_MODEL", "gpt-oss-120b")
-    api_key = api_key or os.getenv("LLM_API_KEY", "")
+    model = model or os.getenv("LLM_BASE_MODEL", "gpt-oss-120b")
+    api_key = api_key or os.getenv("FCI_API_KEY", "")
     base_url = base_url or os.getenv(
         "LLM_BASE_URL", "https://mkp-api.fptcloud.com"
     )
