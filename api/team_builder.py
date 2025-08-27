@@ -152,7 +152,7 @@ def create_team(model: str = "gpt-oss-120b", temperature: float = 0.2):
         # User agent đại diện cho học sinh
         user_agent = ConversableAgent(
             name="student",
-            human_input_mode="ALWAYS",
+            human_input_mode="NEVER",
             system_message="You are a student asking questions.",
         )
 
