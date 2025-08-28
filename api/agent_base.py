@@ -23,13 +23,13 @@ except ImportError:
     USING_AG2 = False
 
 __all__ = [
-    "initiate_group_chat",
-    "ContextVariables",
-    "AutoPattern",
-    "ConversableAgent",
-    "AssistantAgent",
-    "LLMConfig",
-    "UpdateSystemMessage",
-    "USING_AG2",
     "logger",
+    "USING_AG2",
+    "LLMConfig",
+    "AutoPattern",
+    "AssistantAgent",
+    "ConversableAgent",
+    "ContextVariables",
+    "initiate_group_chat",
+    "UpdateSystemMessage",
 ]

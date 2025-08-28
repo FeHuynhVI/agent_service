@@ -6,17 +6,17 @@ import os
 from typing import Dict, List, Optional, Any, cast
 
 from .agent_base import (
+    LLMConfig,
+    AssistantAgent,
     ContextVariables,
     ConversableAgent,
-    AssistantAgent,
-    LLMConfig,
 )
 from .prompts import (
     build_subject_system_message,
     INFO_AGENT_PROMPT,
     GROUP_CHAT_MANAGER_PROMPT,
 )
-from .personalization import make_personalization_updater, chain_updaters
+# Personalization is applied at creation time via system prompts.
 
 
 DEFAULT_CONTEXT: Dict[str, str] = {
@@ -35,6 +35,8 @@ def _make_expert_agent(
     subject: str,
     expertise: List[str],
     description: str,
+    *,
+    is_termination_msg=None,
     **_: object,
 ) -> AssistantAgent:
     """Build a subject expert agent with common defaults.
@@ -48,6 +50,7 @@ def _make_expert_agent(
         name=name,
         system_message=build_subject_system_message(subject, expertise, name),
         human_input_mode="NEVER",
+        is_termination_msg=is_termination_msg,
     )
     agent.description = description
     return agent
@@ -290,45 +293,78 @@ def create_team(
     context_values = {**DEFAULT_CONTEXT, **(context_data or {})}
     context = ContextVariables(data=context_values)
 
+    # Unified termination check used by all recipients
+    def is_termination_msg(msg: dict) -> bool:
+        content = msg.get("content", "")
+        if not isinstance(content, str):
+            return False
+        text = content.strip()
+        low = text.lower()
+        return (
+            text.endswith("TERMINATE")
+            or text.endswith("KẾT THÚC")
+            or ("hoàn thành" in low)
+            or ("completed" in low)
+        )
+
+    def _personalization_suffix(cv: Dict[str, str]) -> str:
+        return (
+            f"Always respond in {cv.get('language', 'vi')}. "
+            f"Student level: {cv.get('student_level', 'HS phổ thông')}. "
+            f"Curriculum: {cv.get('curriculum', 'VN K-12')}. "
+            f"Goals: {cv.get('goals', 'Hiểu sâu khái niệm và làm bài tập có hướng dẫn')}"
+        )
+
     with llm_config:
+        # Build personalized system messages up-front (no runtime monkey-patching)
+        info_system = (INFO_AGENT_PROMPT + "\n\n" + _personalization_suffix(context_values)).strip()
         info_agent = AssistantAgent(
             name="Info_Agent",
-            system_message=INFO_AGENT_PROMPT,
+            system_message=info_system,
             human_input_mode="NEVER",
+            is_termination_msg=is_termination_msg,
         )
         info_agent.description = (
             "Curates curricula and learning materials; generates practice questions; "
             "routes resources."
         )
 
-        subject_agents = [
-            _make_expert_agent(
+        subject_agents = []
+        for cfg in EXPERT_DEFINITIONS:
+            agent = _make_expert_agent(
                 name=cast(str, cfg["name"]),
                 subject=cast(str, cfg["subject"]),
                 expertise=cast(List[str], cfg["expertise"]),
                 description=cast(str, cfg["description"]),
+                is_termination_msg=is_termination_msg,
             )
-            for cfg in EXPERT_DEFINITIONS
-        ]
+            # Append personalization to each subject agent's system message
+            base_sm = getattr(agent, "system_message", "")
+            personalized = (str(base_sm) + "\n\n" + _personalization_suffix(context_values)).strip()
+            # Use official API when available
+            if hasattr(agent, "update_system_message"):
+                try:
+                    agent.update_system_message(personalized)
+                except Exception:
+                    try:
+                        from .agent_base import UpdateSystemMessage as _USM
+                        agent.update_system_message(_USM(content=personalized))  # type: ignore
+                    except Exception:
+                        agent.system_message = personalized  # type: ignore
+            else:
+                agent.system_message = personalized  # type: ignore
+
+            subject_agents.append(agent)
 
         all_agents = [info_agent, *subject_agents]
 
-        def is_termination_msg(msg: dict) -> bool:
-            content = msg.get("content")
-            return isinstance(content, str) and content.rstrip().endswith("TERMINATE")
-
-        for agent in all_agents:
-            personalizer = make_personalization_updater(agent, context)
-            updater_callable = chain_updaters(personalizer)
-            setattr(agent, "update_agent_state_before_reply", updater_callable)
-            setattr(agent, "_is_termination_msg", is_termination_msg)
-
+        # Construct the user agent with termination behavior via constructor
         user_agent = ConversableAgent(
             name="student",
             human_input_mode="NEVER",
             system_message="You are a student asking questions.",
+            is_termination_msg=is_termination_msg,
         )
-        setattr(user_agent, "_is_termination_msg", is_termination_msg)
 
     group_manager_args = {
         "llm_config": llm_config,

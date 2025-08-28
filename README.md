@@ -57,10 +57,24 @@ Chat limits can be tuned using environment variables:
 ```bash
 export MAX_CHAT_ROUNDS=12          # default 10
 export MAX_GROUP_CHAT_ROUNDS=8     # default 6
+export CHAT_TIMEOUT_SEC=60         # overall chat timeout
 ```
 
 These values control how many turns are processed in total and per-agent,
 providing more flexibility compared to the previous hard-coded limits.
+
+Agent routing can be narrowed to the most relevant experts to reduce
+unnecessary back-and-forth and improve latency:
+
+```
+export AGENT_ROUTING_ENABLED=1     # 1/true to enable routing (default enabled)
+export AGENT_ROUTE_TOP_K=3         # consider top-K agents when no clear match
+export AGENT_ROUTING_MIN_SCORE=1   # min keyword hits to include an agent
+```
+
+With routing enabled, the service picks a smaller candidate set (always
+including `Info_Agent`) based on keyword matches from `AGENT_KEYWORDS`, which
+reduces overhead in the group manager while maintaining accuracy.
 
 Agents without an explicit entry fall back to ``LLMConfig.default_model``.
 When using non-OpenAI model names, the underlying
