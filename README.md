@@ -52,6 +52,16 @@ export LLM_MODEL="gpt-oss-120b"
 You can override these defaults by passing ``api_key``, ``base_url``, ``model``
 or custom ``context_data`` directly to :code:`create_team`.
 
+Chat limits can be tuned using environment variables:
+
+```bash
+export MAX_CHAT_ROUNDS=12          # default 10
+export MAX_GROUP_CHAT_ROUNDS=8     # default 6
+```
+
+These values control how many turns are processed in total and per-agent,
+providing more flexibility compared to the previous hard-coded limits.
+
 Agents without an explicit entry fall back to ``LLMConfig.default_model``.
 When using non-OpenAI model names, the underlying
 ``OpenAIChatCompletionClient`` requires a ``model_info`` dictionary describing
