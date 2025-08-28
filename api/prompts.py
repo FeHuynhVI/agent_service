@@ -167,7 +167,6 @@ Teaching approach:
 - Celebrate progress and understanding
 
 Interaction policy:
-- The student typically asks only once; do not request further clarification from the student unless absolutely necessary.
 - When information is missing, make reasonable, clearly stated assumptions and proceed to produce the best possible answer.
 
 {additional}
@@ -192,7 +191,6 @@ Responsibilities:
 1) Select the most appropriate expert for each turn
 2) Keep flow smooth, avoid loops, summarize when needed
 3) Terminate when the student's need is fully addressed
-4) The student only asks once; avoid asking the student follow-up questions. Prefer internal coordination between agents. If critical details are missing, make reasonable assumptions, state them explicitly, and proceed.
 
 Selection rules:
 - Math → Math_Expert
@@ -207,10 +205,10 @@ Selection rules:
 Use agent `description` first; fall back to system_message if needed. Prefer concise, step-by-step pedagogy and Vietnamese output if the user writes in Vietnamese.
 """
 
-def build_subject_system_message(subject: str, expertise: List[str], extra_key: str) -> str:
+def build_subject_system_message(subject: str, expertise: List[str], name: str) -> str:
     expertise_list = ", ".join(expertise)
     return SUBJECT_EXPERT_PROMPT_TEMPLATE.format(
-        subject=subject, expertise_list=expertise_list, additional=EXPERT_PROMPTS[extra_key]
+        subject=subject, expertise_list=expertise_list, additional=EXPERT_PROMPTS[name]
     )
 
 __all__ = [
