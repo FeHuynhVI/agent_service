@@ -7,6 +7,7 @@ import os
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -169,7 +170,6 @@ def _run_group_chat(pattern: AutoPattern, message: str, max_rounds: int):
     # Set a more conservative max_rounds to prevent excessive back-and-forth
     max_group_rounds = int(os.getenv("MAX_GROUP_CHAT_ROUNDS", "6"))
     effective_max_rounds = min(max_rounds, max_group_rounds)
-
     chat_result = last_agent.initiate_chat(
         manager,
         message=last_message,
