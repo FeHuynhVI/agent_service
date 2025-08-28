@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from utils.error_handler import handle_errors
 from .agent_base import AutoPattern
+from utils.error_handler import handle_errors
 from .team_builder import create_team, AGENT_KEYWORDS
 
 
@@ -20,10 +20,9 @@ class ChatRequest(BaseModel):
     """Input payload for the chat endpoint."""
 
     message: str
-    max_rounds: int = 8
-    model: Optional[str] = None
-    temperature: Optional[float] = None
-
+    model: str | None = None
+    max_rounds: int | None = 8
+    temperature: float | None = None
 
 class ChatResponse(BaseModel):
     """Response returned after running the chat."""
@@ -184,13 +183,12 @@ def _run_group_chat(pattern: AutoPattern, message: str, max_rounds: int):
     return chat_result, context_variables, manager.last_speaker
 
 
+@handle_errors
 @router.post(
     "/", response_model=ChatResponse, summary="Run a chat with the expert team"
 )
-@handle_errors
 async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
     """Execute a group chat and return the final result."""
-
     # Limit max_rounds to prevent excessive processing
     max_chat_rounds = int(os.getenv("MAX_CHAT_ROUNDS", "10"))
     effective_max_rounds = min(payload.max_rounds, max_chat_rounds)
