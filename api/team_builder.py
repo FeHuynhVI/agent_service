@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, cast
 
 from .agent_base import (
     ContextVariables,
@@ -31,9 +31,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def _make_expert_agent(
-    name: str, subject: str, expertise: List[str], description: str
+    name: str,
+    subject: str,
+    expertise: List[str],
+    description: str,
+    **_: object,
 ) -> AssistantAgent:
-    """Build a subject expert agent with common defaults."""
+    """Build a subject expert agent with common defaults.
+
+    Extra keyword arguments are ignored so ``EXPERT_DEFINITIONS`` can contain
+    additional configuration without needing to update this helper. This makes
+    the agent creation logic more flexible and extensible.
+    """
 
     agent = AssistantAgent(
         name=name,
@@ -44,7 +53,7 @@ def _make_expert_agent(
     return agent
 
 
-EXPERT_DEFINITIONS: List[Dict[str, object]] = [
+EXPERT_DEFINITIONS: List[Dict[str, Any]] = [
     {
         "name": "CS_Expert",
         "subject": "Computer Science",
@@ -63,6 +72,22 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
             "Answers programming/CS questions; writes & debugs code; algorithms; systems; "
             "databases; networks."
         ),
+        "keywords": [
+            "programming",
+            "code",
+            "algorithm",
+            "data structure",
+            "software",
+            "python",
+            "java",
+            "javascript",
+            "database",
+            "network",
+            "computer",
+            "lập trình",
+            "thuật toán",
+            "cơ sở dữ liệu",
+        ],
     },
     {
         "name": "Math_Expert",
@@ -71,6 +96,25 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
         "description": (
             "Solves math problems step-by-step; proofs; functions; calculus; statistics."
         ),
+        "keywords": [
+            "math",
+            "mathematics",
+            "algebra",
+            "geometry",
+            "calculus",
+            "statistics",
+            "equation",
+            "formula",
+            "derivative",
+            "integral",
+            "probability",
+            "solve",
+            "calculate",
+            "compute",
+            "tính",
+            "toán",
+            "phương trình",
+        ],
     },
     {
         "name": "English_Expert",
@@ -85,6 +129,19 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
         "description": (
             "English language instruction: grammar, IELTS/TOEFL, pronunciation, writing feedback."
         ),
+        "keywords": [
+            "english",
+            "grammar",
+            "vocabulary",
+            "pronunciation",
+            "ielts",
+            "toefl",
+            "writing",
+            "speaking",
+            "listening",
+            "tiếng anh",
+            "ngữ pháp",
+        ],
     },
     {
         "name": "Biology_Expert",
@@ -93,6 +150,22 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
         "description": (
             "Explains biology: cells, genetics, ecology, evolution; clear analogies."
         ),
+        "keywords": [
+            "biology",
+            "cell",
+            "genetic",
+            "dna",
+            "evolution",
+            "ecology",
+            "organism",
+            "protein",
+            "enzyme",
+            "photosynthesis",
+            "sinh học",
+            "tế bào",
+            "gen",
+            "tiến hóa",
+        ],
     },
     {
         "name": "Physics_Expert",
@@ -107,6 +180,24 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
         "description": (
             "Solves physics problems; diagrams; derivations; unit analysis; conceptual clarity."
         ),
+        "keywords": [
+            "physics",
+            "force",
+            "energy",
+            "momentum",
+            "acceleration",
+            "velocity",
+            "electric",
+            "magnetic",
+            "wave",
+            "thermodynamics",
+            "quantum",
+            "vật lý",
+            "lực",
+            "năng lượng",
+            "gia tốc",
+            "vận tốc",
+        ],
     },
     {
         "name": "Chemistry_Expert",
@@ -123,6 +214,22 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
             "Chemistry problem solving: equations, mechanisms, yields, structures, "
             "spectroscopic reasoning."
         ),
+        "keywords": [
+            "chemistry",
+            "chemical",
+            "reaction",
+            "molecule",
+            "atom",
+            "bond",
+            "organic",
+            "inorganic",
+            "stoichiometry",
+            "equilibrium",
+            "hóa học",
+            "phản ứng",
+            "phân tử",
+            "nguyên tử",
+        ],
     },
     {
         "name": "Literature_Expert",
@@ -137,8 +244,27 @@ EXPERT_DEFINITIONS: List[Dict[str, object]] = [
         "description": (
             "Analyzes literature; historical context; writing guidance; literary devices."
         ),
+        "keywords": [
+            "literature",
+            "poem",
+            "novel",
+            "story",
+            "author",
+            "character",
+            "theme",
+            "analysis",
+            "văn học",
+            "thơ",
+            "tiểu thuyết",
+        ],
     },
 ]
+
+# Map agent names to keyword lists for flexible subject routing
+AGENT_KEYWORDS: Dict[str, List[str]] = {
+    cast(str, cfg["name"]): cast(List[str], cfg.get("keywords", []))
+    for cfg in EXPERT_DEFINITIONS
+}
 
 
 def create_team(
@@ -175,7 +301,15 @@ def create_team(
             "routes resources."
         )
 
-        subject_agents = [_make_expert_agent(**cfg) for cfg in EXPERT_DEFINITIONS]
+        subject_agents = [
+            _make_expert_agent(
+                name=cast(str, cfg["name"]),
+                subject=cast(str, cfg["subject"]),
+                expertise=cast(List[str], cfg["expertise"]),
+                description=cast(str, cfg["description"]),
+            )
+            for cfg in EXPERT_DEFINITIONS
+        ]
 
         all_agents = [info_agent, *subject_agents]
 
@@ -204,5 +338,5 @@ def create_team(
     return all_agents, user_agent, group_manager_args, context
 
 
-__all__ = ["create_team"]
+__all__ = ["create_team", "AGENT_KEYWORDS"]
 

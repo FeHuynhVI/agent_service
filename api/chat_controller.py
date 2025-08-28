@@ -244,6 +244,7 @@ __all__ = [
 from functools import lru_cache
 from typing import List, Optional, Dict, Any
 import asyncio
+import os
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -251,7 +252,7 @@ from pydantic import BaseModel
 from utils.error_handler import handle_errors
 
 from .agent_base import AutoPattern
-from .team_builder import create_team
+from .team_builder import create_team, AGENT_KEYWORDS
 
 
 class ChatRequest(BaseModel):
@@ -324,57 +325,18 @@ def _determine_best_agent(message: str, agents: List) -> Optional[Any]:
     This helps avoid unnecessary agent switching and reduces redundant calls.
     """
     message_lower = message.lower()
-    
-    # Subject-specific keywords
-    keywords_map = {
-        'Math_Expert': [
-            'math', 'mathematics', 'algebra', 'geometry', 'calculus', 'statistics',
-            'equation', 'formula', 'derivative', 'integral', 'probability',
-            'solve', 'calculate', 'compute', 'tính', 'toán', 'phương trình'
-        ],
-        'Physics_Expert': [
-            'physics', 'force', 'energy', 'momentum', 'acceleration', 'velocity',
-            'electric', 'magnetic', 'wave', 'thermodynamics', 'quantum',
-            'vật lý', 'lực', 'năng lượng', 'gia tốc', 'vận tốc'
-        ],
-        'Chemistry_Expert': [
-            'chemistry', 'chemical', 'reaction', 'molecule', 'atom', 'bond',
-            'organic', 'inorganic', 'stoichiometry', 'equilibrium',
-            'hóa học', 'phản ứng', 'phân tử', 'nguyên tử'
-        ],
-        'Biology_Expert': [
-            'biology', 'cell', 'genetic', 'dna', 'evolution', 'ecology',
-            'organism', 'protein', 'enzyme', 'photosynthesis',
-            'sinh học', 'tế bào', 'gen', 'tiến hóa'
-        ],
-        'CS_Expert': [
-            'programming', 'code', 'algorithm', 'data structure', 'software',
-            'python', 'java', 'javascript', 'database', 'network', 'computer',
-            'lập trình', 'thuật toán', 'cơ sở dữ liệu'
-        ],
-        'English_Expert': [
-            'english', 'grammar', 'vocabulary', 'pronunciation', 'ielts', 'toefl',
-            'writing', 'speaking', 'listening', 'tiếng anh', 'ngữ pháp'
-        ],
-        'Literature_Expert': [
-            'literature', 'poem', 'novel', 'story', 'author', 'character',
-            'theme', 'analysis', 'văn học', 'thơ', 'tiểu thuyết'
-        ]
-    }
-    
-    # Score each agent based on keyword matches
-    agent_scores = {}
+
+    # Score each agent based on keyword matches using configured keywords
+    agent_scores: Dict[str, int] = {}
     for agent in agents:
-        if hasattr(agent, 'name') and agent.name in keywords_map:
-            score = 0
-            for keyword in keywords_map[agent.name]:
-                if keyword in message_lower:
-                    score += 1
+        if hasattr(agent, 'name') and agent.name in AGENT_KEYWORDS:
+            keywords = AGENT_KEYWORDS.get(agent.name, [])
+            score = sum(1 for keyword in keywords if keyword in message_lower)
             agent_scores[agent.name] = score
     
     # Return agent with highest score, or None if no clear match
     if agent_scores:
-        best_agent_name = max(agent_scores, key=agent_scores.get)
+        best_agent_name = max(agent_scores, key=lambda name: agent_scores.get(name, 0))
         if agent_scores[best_agent_name] > 0:
             return next((a for a in agents if hasattr(a, 'name') and a.name == best_agent_name), None)
     
@@ -437,7 +399,8 @@ def _run_group_chat(pattern: AutoPattern, message: str, max_rounds: int):
             raise ValueError("No agent available to start the conversation")
 
     # Set a more conservative max_rounds to prevent excessive back-and-forth
-    effective_max_rounds = min(max_rounds, 6)  # Limit to 6 rounds max
+    max_group_rounds = int(os.getenv("MAX_GROUP_CHAT_ROUNDS", "6"))
+    effective_max_rounds = min(max_rounds, max_group_rounds)
     
     chat_result = last_agent.initiate_chat(
         manager,
@@ -459,7 +422,8 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
     """Execute a group chat and return the final result."""
 
     # Limit max_rounds to prevent excessive processing
-    effective_max_rounds = min(payload.max_rounds, 10)
+    max_chat_rounds = int(os.getenv("MAX_CHAT_ROUNDS", "10"))
+    effective_max_rounds = min(payload.max_rounds, max_chat_rounds)
 
     if payload.model or payload.temperature:
         agents, user_agent, group_manager_args, context = create_team(
