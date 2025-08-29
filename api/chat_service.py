@@ -89,12 +89,19 @@ def _extract_final_result(result: Any) -> str:
     return final_result
 
 
-def _run_group_chat_sync(message: str, max_rounds: int, model: Optional[str], temperature: Optional[float]) -> str:
+def _run_group_chat_sync(
+    message: str,
+    max_rounds: int,
+    model: Optional[str],
+    temperature: Optional[float],
+    context: Optional[Dict[str, str]] = None,
+) -> str:
     # Build or reuse the team
-    if model or temperature is not None:
+    if model or temperature is not None or context:
         agents, user_agent, group_manager_args, context = create_team(
             model=model or os.getenv("LLM_BASE_MODEL", "gpt-oss-120b"),
             temperature=temperature if temperature is not None else 0.2,
+            context_data=context,
         )
     else:
         agents, user_agent, group_manager_args, context = _get_cached_team()
@@ -116,7 +123,14 @@ def _run_group_chat_sync(message: str, max_rounds: int, model: Optional[str], te
     return _extract_final_result(chat_result)
 
 
-async def run_chat(message: str, model: Optional[str], temperature: Optional[float], max_rounds: int) -> str:
+async def run_chat(
+    message: str,
+    model: Optional[str],
+    temperature: Optional[float],
+    max_rounds: int,
+    *,
+    context: Optional[Dict[str, str]] = None,
+) -> str:
     """Run a chat end-to-end and return the final result string.
 
     No explicit timeout is enforced here; rely on the underlying library.
@@ -132,7 +146,12 @@ async def run_chat(message: str, model: Optional[str], temperature: Optional[flo
         temperature if temperature is not None else "(default)",
     )
     result = await asyncio.to_thread(
-        _run_group_chat_sync, message, effective_max_rounds, model, temperature
+        _run_group_chat_sync,
+        message,
+        effective_max_rounds,
+        model,
+        temperature,
+        context,
     )
     logger.info("Chat done | elapsed=%.2fs", time.perf_counter() - start)
     return result

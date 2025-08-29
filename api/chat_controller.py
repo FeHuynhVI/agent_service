@@ -27,8 +27,9 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
     """Execute a group chat and return the final result."""
     result = await run_chat(
-        message=payload.message,
         model=payload.model,
+        message=payload.message,
+        context=payload.context,
         temperature=payload.temperature,
         max_rounds=payload.max_rounds or 10,
     )

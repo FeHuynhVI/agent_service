@@ -8,6 +8,8 @@ class ChatRequest(BaseModel):
     model: str | None = None
     max_rounds: int | None = 8
     temperature: float | None = None
+    # Optional per-user/session context for personalization
+    context: dict[str, str] | None = None
 
 
 class ChatResponse(BaseModel):
@@ -20,4 +22,3 @@ class AgentInfo(BaseModel):
 
 
 __all__ = ["ChatRequest", "ChatResponse", "AgentInfo"]
-

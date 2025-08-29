@@ -12,23 +12,15 @@ from .agent_base import (
     ConversableAgent,
 )
 from .prompts import (
+    DEFAULT_CONTEXT,
+    EXPERT_DEFINITIONS,
     INFO_AGENT_PROMPT,
     TUTOR_AGENT_PROMPT,
     build_subject_system_message,
 )
-# Personalization is applied at creation time via system prompts.
-
-
-DEFAULT_CONTEXT: Dict[str, str] = {
-    "language": "vi",
-    "student_level": "HS phổ thông",
-    "curriculum": "VN K-12",
-    "goals": "Hiểu sâu khái niệm và làm bài tập có hướng dẫn",
-}
-
 from dotenv import load_dotenv
-
 load_dotenv()
+
 
 def _make_expert_agent(
     name: str,
@@ -36,8 +28,12 @@ def _make_expert_agent(
     expertise: List[str],
     description: str,
     *,
+    level: str = "expert",
+    keywords: Optional[List[str]] = None,
+    examples: Optional[List[str]] = None,
     is_termination_msg=None,
-    **_: object,
+    cv: Optional[Dict[str, str]] = None, 
+    **_: object,  # bỏ qua field dư thừa để EXPERT_DEFINITIONS tự do mở rộng
 ) -> AssistantAgent:
     """Build a subject expert agent with common defaults.
 
@@ -48,226 +44,26 @@ def _make_expert_agent(
 
     agent = AssistantAgent(
         name=name,
-        system_message=build_subject_system_message(subject, expertise, name),
         human_input_mode="NEVER",
         is_termination_msg=is_termination_msg,
+        system_message=build_subject_system_message(
+            cv=cv,
+            name=name,
+            level=level,
+            subject=subject,
+            keywords=keywords,
+            examples=examples,
+            expertise=expertise,
+        ),
     )
     agent.description = description
     return agent
 
 
-EXPERT_DEFINITIONS: List[Dict[str, Any]] = [
-    {
-        "name": "CS_Expert",
-        "subject": "Computer Science",
-        "expertise": [
-            "Programming (Python, Java, C++, JavaScript)",
-            "Data Structures (Arrays, Trees, Graphs, Hash Tables)",
-            "Algorithms (Sorting, Searching, Dynamic Programming)",
-            "Software Engineering (Design Patterns, Testing, Agile)",
-            "Databases (SQL, NoSQL, Design)",
-            "Operating Systems",
-            "Computer Networks",
-            "AI/ML",
-            "Web Development",
-        ],
-        "description": (
-            "Answers programming/CS questions; writes & debugs code; algorithms; systems; "
-            "databases; networks."
-        ),
-        "keywords": [
-            "programming",
-            "code",
-            "algorithm",
-            "data structure",
-            "software",
-            "python",
-            "java",
-            "javascript",
-            "database",
-            "network",
-            "computer",
-            "lập trình",
-            "thuật toán",
-            "cơ sở dữ liệu",
-        ],
-    },
-    {
-        "name": "Math_Expert",
-        "subject": "Mathematics",
-        "expertise": ["Algebra", "Geometry", "Calculus", "Statistics", "Linear Algebra"],
-        "description": (
-            "Solves math problems step-by-step; proofs; functions; calculus; statistics."
-        ),
-        "keywords": [
-            "math",
-            "mathematics",
-            "algebra",
-            "geometry",
-            "calculus",
-            "statistics",
-            "equation",
-            "formula",
-            "derivative",
-            "integral",
-            "probability",
-            "solve",
-            "calculate",
-            "compute",
-            "tính",
-            "toán",
-            "phương trình",
-        ],
-    },
-    {
-        "name": "English_Expert",
-        "subject": "English Language",
-        "expertise": [
-            "Grammar",
-            "Vocabulary",
-            "Pronunciation",
-            "IELTS/TOEFL",
-            "Writing/Listening/Speaking",
-        ],
-        "description": (
-            "English language instruction: grammar, IELTS/TOEFL, pronunciation, writing feedback."
-        ),
-        "keywords": [
-            "english",
-            "grammar",
-            "vocabulary",
-            "pronunciation",
-            "ielts",
-            "toefl",
-            "writing",
-            "speaking",
-            "listening",
-            "tiếng anh",
-            "ngữ pháp",
-        ],
-    },
-    {
-        "name": "Biology_Expert",
-        "subject": "Biology",
-        "expertise": ["Cell biology", "Genetics", "Ecology", "Evolution", "Physiology"],
-        "description": (
-            "Explains biology: cells, genetics, ecology, evolution; clear analogies."
-        ),
-        "keywords": [
-            "biology",
-            "cell",
-            "genetic",
-            "dna",
-            "evolution",
-            "ecology",
-            "organism",
-            "protein",
-            "enzyme",
-            "photosynthesis",
-            "sinh học",
-            "tế bào",
-            "gen",
-            "tiến hóa",
-        ],
-    },
-    {
-        "name": "Physics_Expert",
-        "subject": "Physics",
-        "expertise": [
-            "Mechanics",
-            "Electricity & Magnetism",
-            "Waves",
-            "Thermodynamics",
-            "Modern Physics",
-        ],
-        "description": (
-            "Solves physics problems; diagrams; derivations; unit analysis; conceptual clarity."
-        ),
-        "keywords": [
-            "physics",
-            "force",
-            "energy",
-            "momentum",
-            "acceleration",
-            "velocity",
-            "electric",
-            "magnetic",
-            "wave",
-            "thermodynamics",
-            "quantum",
-            "vật lý",
-            "lực",
-            "năng lượng",
-            "gia tốc",
-            "vận tốc",
-        ],
-    },
-    {
-        "name": "Chemistry_Expert",
-        "subject": "Chemistry",
-        "expertise": [
-            "Stoichiometry",
-            "Thermochemistry",
-            "Equilibrium",
-            "Organic",
-            "Inorganic",
-            "Spectroscopy",
-        ],
-        "description": (
-            "Chemistry problem solving: equations, mechanisms, yields, structures, "
-            "spectroscopic reasoning."
-        ),
-        "keywords": [
-            "chemistry",
-            "chemical",
-            "reaction",
-            "molecule",
-            "atom",
-            "bond",
-            "organic",
-            "inorganic",
-            "stoichiometry",
-            "equilibrium",
-            "hóa học",
-            "phản ứng",
-            "phân tử",
-            "nguyên tử",
-        ],
-    },
-    {
-        "name": "Literature_Expert",
-        "subject": "Literature",
-        "expertise": [
-            "Close reading",
-            "Themes/Motifs",
-            "Comparative analysis",
-            "Essay guidance",
-            "Literary devices",
-        ],
-        "description": (
-            "Analyzes literature; historical context; writing guidance; literary devices."
-        ),
-        "keywords": [
-            "literature",
-            "poem",
-            "novel",
-            "story",
-            "author",
-            "character",
-            "theme",
-            "analysis",
-            "văn học",
-            "thơ",
-            "tiểu thuyết",
-        ],
-    },
-]
 
-# Map agent names to keyword lists for flexible subject routing
-AGENT_KEYWORDS: Dict[str, List[str]] = {
-    cast(str, cfg["name"]): cast(List[str], cfg.get("keywords", []))
-    for cfg in EXPERT_DEFINITIONS
-}
+def _safe_get(d: Dict[str, Any], key: str, default):
+    v = d.get(key, default)
+    return v if v is not None else default
 
 
 def create_team(
@@ -305,9 +101,8 @@ def create_team(
         low = text.lower()
 
         termination_phrases = [
-            "TUTOR_SESSION_END",
-            "TERMINATE",
-            "KẾT THÚC",
+            "tutor_session_end",
+            "terminate",
             "kết thúc",
             "kết thúc phiên",
             "hoàn thành",
@@ -322,21 +117,12 @@ def create_team(
 
         return any(phrase in low or text.endswith(phrase) for phrase in termination_phrases)
 
-    def _personalization_suffix(cv: Dict[str, str]) -> str:
-        return (
-            f"Always respond in {cv.get('language', 'vi')}. "
-            f"Student level: {cv.get('student_level', 'HS phổ thông')}. "
-            f"Curriculum: {cv.get('curriculum', 'VN K-12')}. "
-            f"Goals: {cv.get('goals', 'Hiểu sâu khái niệm và làm bài tập có hướng dẫn')}"
-        )
-
     with llm_config:
         # Build personalized system messages up-front (no runtime monkey-patching)
-        info_system = (INFO_AGENT_PROMPT + "\n\n" + _personalization_suffix(context_values)).strip()
         info_agent = AssistantAgent(
             name="Info_Agent",
-            system_message=info_system,
             human_input_mode="NEVER",
+            system_message=INFO_AGENT_PROMPT,
             is_termination_msg=is_termination_msg,
         )
         info_agent.description = (
@@ -346,8 +132,8 @@ def create_team(
         
         tutor_agent = AssistantAgent(
             name="Tutor_Agent",
-            system_message=TUTOR_AGENT_PROMPT,
             human_input_mode="NEVER",
+            system_message=TUTOR_AGENT_PROMPT,
             is_termination_msg=is_termination_msg,
         )
         
@@ -358,30 +144,17 @@ def create_team(
 
         subject_agents = []
         for cfg in EXPERT_DEFINITIONS:
-            agent = _make_expert_agent(
+             agent = _make_expert_agent(
                 name=cast(str, cfg["name"]),
                 subject=cast(str, cfg["subject"]),
-                expertise=cast(List[str], cfg["expertise"]),
-                description=cast(str, cfg["description"]),
+                level=cast(str, _safe_get(cfg, "level", "expert")),
+                description=cast(str, _safe_get(cfg, "description", "")),
+                expertise=cast(List[str], _safe_get(cfg, "expertise", [])),
+                keywords=cast(List[str], _safe_get(cfg, "keywords", [])),
+                examples=cast(List[str], _safe_get(cfg, "examples", [])),
                 is_termination_msg=is_termination_msg,
-            )
-            # Append personalization to each subject agent's system message
-            base_sm = getattr(agent, "system_message", "")
-            personalized = (str(base_sm) + "\n\n" + _personalization_suffix(context_values)).strip()
-            # Use official API when available
-            if hasattr(agent, "update_system_message"):
-                try:
-                    agent.update_system_message(personalized)
-                except Exception:
-                    try:
-                        from .agent_base import UpdateSystemMessage as _USM
-                        agent.update_system_message(_USM(content=personalized))  # type: ignore
-                    except Exception:
-                        agent.system_message = personalized  # type: ignore
-            else:
-                agent.system_message = personalized  # type: ignore
-
-            subject_agents.append(agent)
+                cv=context_values,)
+             subject_agents.append(agent)
 
         all_agents = [info_agent, tutor_agent, *subject_agents]
 
