@@ -12,9 +12,9 @@ from .agent_base import (
     ConversableAgent,
 )
 from .prompts import (
-    build_subject_system_message,
     INFO_AGENT_PROMPT,
-    GROUP_CHAT_MANAGER_PROMPT,
+    TUTOR_AGENT_PROMPT,
+    build_subject_system_message,
 )
 # Personalization is applied at creation time via system prompts.
 
@@ -290,7 +290,9 @@ def create_team(
         temperature=temperature,
     )
 
-    context_values = {**DEFAULT_CONTEXT, **(context_data or {})}
+    context_values = {
+        **DEFAULT_CONTEXT, **(context_data or {})
+    }
     context = ContextVariables(data=context_values)
 
     # Unified termination check used by all recipients
@@ -298,14 +300,27 @@ def create_team(
         content = msg.get("content", "")
         if not isinstance(content, str):
             return False
+
         text = content.strip()
         low = text.lower()
-        return (
-            text.endswith("TERMINATE")
-            or text.endswith("KẾT THÚC")
-            or ("hoàn thành" in low)
-            or ("completed" in low)
-        )
+
+        termination_phrases = [
+            "TUTOR_SESSION_END",
+            "TERMINATE",
+            "KẾT THÚC",
+            "kết thúc",
+            "kết thúc phiên",
+            "hoàn thành",
+            "xong rồi",
+            "đã xong",
+            "done",
+            "finished",
+            "completed",
+            "i'm done",
+            "i have finished",
+        ]
+
+        return any(phrase in low or text.endswith(phrase) for phrase in termination_phrases)
 
     def _personalization_suffix(cv: Dict[str, str]) -> str:
         return (
@@ -327,6 +342,18 @@ def create_team(
         info_agent.description = (
             "Curates curricula and learning materials; generates practice questions; "
             "routes resources."
+        )
+        
+        tutor_agent = AssistantAgent(
+            name="Tutor_Agent",
+            system_message=TUTOR_AGENT_PROMPT,
+            human_input_mode="NEVER",
+            is_termination_msg=is_termination_msg,
+        )
+        
+        tutor_agent.description = (
+            "Provides personalized explanations, adaptive guidance, and self-learning strategies "
+            "to support deep understanding and critical thinking."
         )
 
         subject_agents = []
@@ -356,7 +383,7 @@ def create_team(
 
             subject_agents.append(agent)
 
-        all_agents = [info_agent, *subject_agents]
+        all_agents = [info_agent, tutor_agent, *subject_agents]
 
         # Construct the user agent with termination behavior via constructor
         user_agent = ConversableAgent(
@@ -367,8 +394,7 @@ def create_team(
         )
 
     group_manager_args = {
-        "llm_config": llm_config,
-        "system_message": GROUP_CHAT_MANAGER_PROMPT,
+        "llm_config": llm_config
     }
 
     return all_agents, user_agent, group_manager_args, context

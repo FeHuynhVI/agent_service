@@ -9,6 +9,10 @@ import os
 import time
 import asyncio
 from functools import lru_cache
+
+from autogen import AssistantAgent
+
+from api.prompts import CLASSIFICATION_AGENT_PROMPT
 from .team_builder import create_team
 from typing import Any, List, Optional, Dict
 from .agent_base import AutoPattern, logger, initiate_group_chat
@@ -34,20 +38,22 @@ def _build_pattern(
     # Use all agents; let AutoPattern route internally
     candidate_agents = agents
 
-    # Start with Info_Agent as default initial speaker
-    initial_agent = next(a for a in candidate_agents if getattr(a, "name", "") == "Info_Agent")
-
     logger.debug(
         "Building pattern with %d agents (auto routing)",
         len(candidate_agents),
     )
+    
+    triage_agent = AssistantAgent(
+        name="Triage_Agent",
+        system_message=CLASSIFICATION_AGENT_PROMPT,
+    )
 
     return AutoPattern(
-        initial_agent=initial_agent,
-        agents=candidate_agents,  # type: ignore[arg-type]
+        initial_agent=triage_agent,
+        context_variables=context,
         user_agent=user_agent,
         group_manager_args=group_manager_args,
-        context_variables=context,
+        agents=[triage_agent, *candidate_agents],
     )
 
 
