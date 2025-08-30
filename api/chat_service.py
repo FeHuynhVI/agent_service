@@ -12,9 +12,9 @@ from functools import lru_cache
 
 from autogen import AssistantAgent
 
-from api.prompts import CLASSIFICATION_AGENT_PROMPT
 from .team_builder import create_team
 from typing import Any, List, Optional, Dict
+from api.prompts import build_classification_agent_prompt
 from .agent_base import AutoPattern, logger, initiate_group_chat
 
 
@@ -43,9 +43,17 @@ def _build_pattern(
         len(candidate_agents),
     )
     
+    # Build a dynamic classification prompt that includes all available agents
+    try:
+        agent_names = [getattr(a, "name", "") for a in candidate_agents if hasattr(a, "name")]
+    except Exception:
+        agent_names = []
+
+    triage_prompt = build_classification_agent_prompt(agent_names)
+
     triage_agent = AssistantAgent(
         name="Triage_Agent",
-        system_message=CLASSIFICATION_AGENT_PROMPT,
+        system_message=triage_prompt,
     )
 
     return AutoPattern(

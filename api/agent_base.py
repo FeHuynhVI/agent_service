@@ -9,18 +9,11 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
-try:
-    from ag2.agentchat import initiate_group_chat
-    from ag2.agentchat.group import ContextVariables
-    from ag2.agentchat.group.patterns import AutoPattern
-    from ag2 import ConversableAgent, AssistantAgent, LLMConfig, UpdateSystemMessage
-    USING_AG2 = True
-except ImportError:
-    from autogen.agentchat import initiate_group_chat
-    from autogen.agentchat.group import ContextVariables
-    from autogen.agentchat.group.patterns import AutoPattern
-    from autogen import ConversableAgent, AssistantAgent, LLMConfig, UpdateSystemMessage
-    USING_AG2 = False
+from autogen.agentchat import initiate_group_chat
+from autogen.agentchat.group import ContextVariables
+from autogen.agentchat.group.patterns import AutoPattern
+from autogen import ConversableAgent, AssistantAgent, LLMConfig, UpdateSystemMessage
+USING_AG2 = False
 
 __all__ = [
     "logger",

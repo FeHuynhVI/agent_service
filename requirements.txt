@@ -1,11 +1,9 @@
-pymongo
-motor
-fastapi
-pandas
-autogen
+ag2
+ag2[openai,captainagent]
 rich
+motor
+pandas
+fastapi
+pymongo
 colorama
 uvicorn
-ag2
-ag2[openai]
-autogen-ext[openai]
