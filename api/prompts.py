@@ -645,6 +645,23 @@ def build_subject_system_message(
     # An toàn khi EXPERT_PROMPTS không có key
     additional_prompts = (EXPERT_PROMPTS.get(name) if "EXPERT_PROMPTS" in globals() else None) or ""
 
+    # Hint available tools for specific experts so the LLM knows when to call them
+    tool_hints = {
+        "Math_Expert": (
+            "\n\nTools available to you:\n"
+            "- sympy_compute(expr: str, task: str = 'simplify' | 'solve' | 'diff' | 'integrate' | 'factor' | 'expand' | 'limit', var: str = 'x', order: int = 1, lower?: str, upper?: str) -> {result, latex}.\n"
+            "  Use for exact algebraic manipulation, solving, differentiation, integration and limits. Prefer this tool for calculations.\n"
+        ),
+        "CS_Expert": (
+            "\n\nTools available to you:\n"
+            "- run_python(code: str, stdin?: str, timeout_sec: int = 3) -> {stdout, stderr, exit_code, timed_out}.\n"
+            "  Use to execute short Python snippets for demonstration, quick tests, or verifying examples. Avoid dangerous modules and file/network access.\n"
+        ),
+    }
+            
+    if name in tool_hints:
+        additional_prompts = (additional_prompts + tool_hints[name]).strip()
+
     return SUBJECT_EXPERT_PROMPT_TEMPLATE.format(
         subject=subject,
         level=level,

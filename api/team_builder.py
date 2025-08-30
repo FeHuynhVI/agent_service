@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from dotenv import load_dotenv
 from typing import Dict, List, Optional, Any, cast
 
 from .agent_base import (
@@ -18,9 +19,10 @@ from .prompts import (
     TUTOR_AGENT_PROMPT,
     build_subject_system_message,
 )
-from dotenv import load_dotenv
-load_dotenv()
+from .tools import attach_math_tools, attach_cs_tools
 
+
+load_dotenv()
 
 def _make_expert_agent(
     name: str,
@@ -155,6 +157,17 @@ def create_team(
                 is_termination_msg=is_termination_msg,
                 cv=context_values,)
              subject_agents.append(agent)
+
+        # Attach tools to specific experts (best-effort; safe no-op if unsupported)
+        for a in subject_agents:
+            try:
+                if getattr(a, "name", "") == "Math_Expert":
+                    attach_math_tools(a)
+                elif getattr(a, "name", "") == "CS_Expert":
+                    attach_cs_tools(a)
+            except Exception:
+                # Do not fail team creation if tool registration is not supported
+                pass
 
         all_agents = [info_agent, tutor_agent, *subject_agents]
 
