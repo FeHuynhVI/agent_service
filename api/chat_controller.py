@@ -11,8 +11,8 @@ from typing import List
 from fastapi import APIRouter
 
 from utils.error_handler import handle_errors
-from .schemas import ChatRequest, ChatResponse, AgentInfo
 from .chat_service import run_chat, list_agents_info
+from .schemas import ChatRequest, ChatResponse, AgentInfo
 
 
 router = APIRouter(prefix="/chat", tags=["chat"])

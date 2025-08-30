@@ -173,5 +173,5 @@ def create_team(
     return all_agents, user_agent, group_manager_args, context
 
 
-__all__ = ["create_team", "AGENT_KEYWORDS"]
+__all__ = ["create_team"]
 

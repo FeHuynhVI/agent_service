@@ -56,6 +56,7 @@ def _build_pattern(
         system_message=triage_prompt,
     )
 
+
     return AutoPattern(
         initial_agent=triage_agent,
         context_variables=context,
@@ -118,8 +119,7 @@ def _run_group_chat_sync(
         agents,
         user_agent,
         group_manager_args,
-        context,
-        message=message,
+        context, message=message,
     )
 
     chat_result, _ctx, _last_agent = initiate_group_chat(
