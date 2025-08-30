@@ -72,7 +72,7 @@ def create_team(
     context_data: Optional[Dict[str, str]] = None,
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
-):
+) -> Any:
     """Return (agents_list, user_agent, group_manager_args, context_variables)."""
 
     model = model or os.getenv("LLM_BASE_MODEL", "gpt-oss-120b")
